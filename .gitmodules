@@ -1,0 +1,4 @@
+[submodule "catalog/controller/payment/includes/CheckoutApi"]
+	path = catalog/controller/payment/includes/CheckoutApi
+	url = https://github.com/CKOTech/checkout-php-library.git
+	branch = CheckoutApi
