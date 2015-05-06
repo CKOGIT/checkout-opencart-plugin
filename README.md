@@ -1,0 +1,1 @@
+Webhook: example.com/webhook/index.php?route=payment/checkoutapipayment/webhook
