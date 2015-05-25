@@ -47,15 +47,10 @@
                                     <tr>
                                         <td><?php echo $entry_test_mode; ?></td>
                                         <td><select name="test_mode">
-                                                <?php if ($test_mode == 'test') { ?>
-                                                <option value="test" selected="selected"><?php echo $text_mode_test; ?></option>
+                                                <?php if ($test_mode == 'sandbox') { ?>
+                                                <option value="sandbox" selected="selected"><?php echo $text_mode_sandbox; ?></option>
                                                 <?php } else { ?>
-                                                <option value="test"><?php echo $text_mode_test; ?></option>
-                                                <?php } ?>
-                                                <?php if ($test_mode == 'preprod') { ?>
-                                                <option value="preprod" selected="selected"><?php echo $text_mode_prod; ?></option>
-                                                <?php } else { ?>
-                                                <option value="preprod"><?php echo $text_mode_prod; ?></option>
+                                                <option value="sandbox"><?php echo $text_mode_sandbox; ?></option>
                                                 <?php } ?>
                                                 <?php if ($test_mode == 'live') { ?>
                                                 <option value="live" selected="selected"><?php echo $text_mode_live; ?></option>
@@ -83,7 +78,18 @@
                                     </tr>
                                     <tr>
                                         <td><?php echo $entry_localpayment_enable; ?></td>
-                                        <td><input type="checkbox" name="localpayment_enable" value="<?php echo $localpayment_enable; ?>" />
+                                        <td><select name="localpayment_enable">
+                                                <?php if ($localpayment_enable == 'yes') { ?>
+                                                <option value="yes" selected="selected"><?php echo $text_lp_yes; ?></option>
+                                                <?php } else { ?>
+                                                <option value="yes"><?php echo $text_lp_yes; ?></option>
+                                                <?php } ?>
+                                                <?php if ($localpayment_enable == 'no') { ?>
+                                                <option value="no" selected="selected"><?php echo $text_lp_no; ?></option>
+                                                <?php } else { ?>
+                                                <option value="no"><?php echo $text_lp_no; ?></option>
+                                                <?php } ?>
+                                            </select>
                                         </td>
                                     </tr>
                                     <tr>
@@ -123,12 +129,7 @@
                                         <td><input type="text" name="autocapture_delay" value="0" />
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td><?php echo $entry_card_type; ?></td>
-                                        <td>
 
-                                        </td>
-                                    </tr>
                                     <tr>
                                         <td><?php echo $entry_gateway_timeout; ?></td>
                                         <td><input type="text" name="gateway_timeout" value="<?php echo $gateway_timeout;?>" /></td>

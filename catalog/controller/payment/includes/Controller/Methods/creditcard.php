@@ -4,35 +4,51 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
     public function getData()
     {
-
         $this->language->load('payment/checkoutapipayment');
-        //$this->document->addScript('https://www.checkout.com/cdn/js/Checkout.js');
-
         $this->load->model('checkout/order');
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+
         $config['debug'] = false;
         $config['email'] =  $order_info['email'];
         $config['name'] = $order_info['firstname']. ' '.$order_info['lastname'];
-        $config['amount'] =  (int) $order_info['total'] * 100;
+        $config['amount'] =  ($order_info['total']) * 100;
         $config['currency'] =  $this->currency->getCode();
         $config['widgetSelector'] =  '.widget-container';
-        $paymentTokenArray    =    $this->generatePaymentToken();
+        $paymentTokenArray = $this->generatePaymentToken();
+        $localPayment = $this->config->get('localpayment_enable');
+        $mode = $this->config->get('test_mode');
+        $amount = ($order_info['total'])*100;
+
+        if($mode == 'live'){
+            $url = 'https://www.checkout.com/cdn/js/checkout.js';
+        } else {
+            $url = 'http://sandbox.checkout.com/js/v1/checkout.js';
+        }
+
+        if($localPayment == 'yes'){
+            $paymentMode = 'mixed';
+        } else {
+            $paymentMode = 'card';
+        }
 
         $toReturn = array(
-            'text_card_details' => $this->language->get('text_card_details'),
-            'text_wait'         => $this->language->get('text_wait'),
-            'entry_public_key'  => $this->config->get('public_key'),
-            'order_email'       => $order_info['email'],
-            'order_currency'    => $this->currency->getCode(),
-            'amount'            => (int) $order_info['total'] * 100,
-            'publicKey'         => $this->config->get('public_key'),
+            'text_card_details' =>  $this->language->get('text_card_details'),
+            'text_wait'         =>  $this->language->get('text_wait'),
+            'entry_public_key'  =>  $this->config->get('public_key'),
+            'order_email'       =>  $order_info['email'],
+            'order_currency'    =>  $this->currency->getCode(),
+            'amount'            =>  $amount,
+            'title'             =>  $this->config->get('config_name'),
+            'publicKey'         =>  $this->config->get('public_key'),
+            'url'               =>  $url,
+            'paymentMode'       =>  $paymentMode,
             'email'             =>  $order_info['email'],
-            'name'  => $order_info['firstname']. ' '.$order_info['lastname'],
-            'paymentToken'      =>   $paymentTokenArray['token'],
-            'message'           =>   $paymentTokenArray['message'],
-            'success'           =>   $paymentTokenArray['success'],
-            'eventId'           =>   $paymentTokenArray['eventId'],
-            'textWait'           =>   $this->language->get('text_wait'),
+            'name'              =>  $order_info['firstname']. ' '.$order_info['lastname'],
+            'paymentToken'      =>  $paymentTokenArray['token'],
+            'message'           =>  $paymentTokenArray['message'],
+            'success'           =>  $paymentTokenArray['success'],
+            'eventId'           =>  $paymentTokenArray['eventId'],
+            'textWait'          =>  $this->language->get('text_wait'),
 
         );
 
@@ -50,12 +66,11 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         $toReturn['tpl'] =   $this->render();
         return $toReturn;
     }
+
     protected function _createCharge($order_info)
     {
         $config = array();
-
         $scretKey = $this->config->get('secret_key');
-
         $config['authorization'] = $scretKey  ;
         $config['timeout'] =  $this->config->get('gateway_timeout');
         $config['paymentToken']  = $this->request->post['cko_cc_paymenToken'];
@@ -63,8 +78,6 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
         return $Api->verifyChargePaymentToken($config);
     }
-
-
 
     public function generatePaymentToken()
     {
@@ -74,18 +87,19 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         $productsLoad= $this->cart->getProducts();
         $scretKey = $this->config->get('secret_key');
         $orderId = $this->session->data['order_id'];
-        $amountCents = (int) $order_info['total'] * 100;
+        $amountCents = ($order_info['total'])*100;
         $config['authorization'] = $scretKey  ;
         $config['mode'] = $this->config->get('test_mode');
         $config['timeout'] =  $this->config->get('gateway_timeout');
 
-        if($this->config->get('payment_action') =='authorize_capture') {
+        if($this->config->get('payment_action') =='capture') {
             $config = array_merge($config, $this->_captureConfig());
 
         }else {
 
             $config = array_merge($config,$this->_authorizeConfig());
         }
+
 
         $products = array();
         foreach ($productsLoad as $item ) {
@@ -115,7 +129,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'country'            =>  $order_info['shipping_iso_code_3'],
             'city'               =>  $order_info['shipping_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
-            'recipientName'	 =>  $order_info['firstname']. ' '. $order_info['lastname']
+           // 'recipientName'	 =>  $order_info['firstname']. ' '. $order_info['lastname']
 
         );
 
@@ -142,16 +156,15 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         );
 
         if($paymentTokenCharge->isValid()){
+
             $paymentTokenArray['token'] = $paymentTokenCharge->getId();
             $paymentTokenArray['success'] = true;
 
         }else {
 
-
             $paymentTokenArray['message']    =    $paymentTokenCharge->getExceptionState()->getErrorMessage();
             $paymentTokenArray['success']    =    false;
             $paymentTokenArray['eventId']    =    $paymentTokenCharge->getEventId();
-
         }
 
         return $paymentTokenArray;
