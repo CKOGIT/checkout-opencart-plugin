@@ -20,21 +20,23 @@ class ControllerPaymentcheckoutapipayment extends Controller
         }
 
         $this->data['heading_title']                 = $this->language->get('heading_title');
-        $this->data['text_checkoutapipayment_join']     = $this->language->get('text_checkoutapipayment_join');
-        $this->data['text_checkoutapipayment']          = $this->language->get('text_checkoutapipayment');
+        $this->data['text_checkoutapipayment_join']  = $this->language->get('text_checkoutapipayment_join');
+        $this->data['text_checkoutapipayment']       = $this->language->get('text_checkoutapipayment');
         $this->data['text_payment']                  = $this->language->get('text_payment');
         $this->data['text_success']                  = $this->language->get('text_success');
         $this->data['text_page_title']               = $this->language->get('text_page_title');
         $this->data['text_status_on']                = $this->language->get('text_status_on');
         $this->data['text_status_off']               = $this->language->get('text_status_off');
         $this->data['text_mode_test']                = $this->language->get('text_mode_test');
-        $this->data['text_mode_prod']                = $this->language->get('text_mode_prod');
+        $this->data['text_mode_sandbox']             = $this->language->get('text_mode_sandbox');
         $this->data['text_mode_live']                = $this->language->get('text_mode_live');
         $this->data['text_auth_only']                = $this->language->get('text_auth_only');
         $this->data['text_auth_capture']             = $this->language->get('text_auth_capture');
         $this->data['text_pci_yes']                  = $this->language->get('text_pci_yes');
         $this->data['text_pci_no']                   = $this->language->get('text_pci_no');
-        $this->data['text_gateway_timeout']             = $this->language->get('text_gateway_timeout');
+        $this->data['text_lp_yes']                   = $this->language->get('text_lp_yes');
+        $this->data['text_lp_no']                    = $this->language->get('text_lp_no');
+        $this->data['text_gateway_timeout']          = $this->language->get('text_gateway_timeout');
 
         $this->data['entry_test_mode']               = $this->language->get('entry_test_mode');
         $this->data['entry_secret_key']              = $this->language->get('entry_secret_key');

@@ -10,7 +10,7 @@
     <script type="text/javascript">
 
         $.ajax({
-            url: 'https://www.checkout.com/cdn/js/checkout.js',
+            url: '<?php echo $url ?>',
             dataType: 'script',
             cache: true,
             beforeSend: function(){
@@ -24,8 +24,8 @@
                     currency: '<?php echo $order_currency ?>',
                     customerEmail: '<?php echo $email ?>',
                     customerName: '<?php echo $name ?>',
-                    paymentMode: 'card',
-                    title: '{$store}',
+                    paymentMode: '<?php echo $paymentMode ?>',
+                    title: '<?php echo $title ?>',
                     subtitle:'Please enter your credit card details',
                     widgetContainerSelector: '.widget-container',
                     cardCharged: function(event){

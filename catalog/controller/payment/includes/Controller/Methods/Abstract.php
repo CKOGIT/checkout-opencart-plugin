@@ -124,7 +124,7 @@ abstract class Controller_Methods_Abstract extends Controller
             'addressLine1'       =>  $order_info['payment_address_1'],
             'addressLine2'       =>  $order_info['payment_address_2'],
             'postcode'           =>  $order_info['payment_postcode'],
-            'country'            =>  $order_info['payment_iso_code_3'],
+            'country'            =>  $order_info['payment_iso_code_2'],
             'city'               =>  $order_info['payment_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
 
@@ -134,7 +134,7 @@ abstract class Controller_Methods_Abstract extends Controller
             'addressLine1'       =>  $order_info['shipping_address_1'],
             'addressLine2'       =>  $order_info['shipping_address_2'],
             'postcode'           =>  $order_info['shipping_postcode'],
-            'country'            =>  $order_info['shipping_iso_code_3'],
+            'country'            =>  $order_info['shipping_iso_code_2'],
             'city'               =>  $order_info['shipping_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
             'recipientName'	 =>   $order_info['firstname']. ' '. $order_info['lastname']
