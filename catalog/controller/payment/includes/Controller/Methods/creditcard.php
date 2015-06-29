@@ -103,9 +103,6 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             $config = array_merge($config,$this->_authorizeConfig());
         }
 
-
-
-
         $products = array();
         foreach ($productsLoad as $item ) {
 
@@ -134,7 +131,6 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'country'            =>  $order_info['shipping_iso_code_2'],
             'city'               =>  $order_info['shipping_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
-           // 'recipientName'	 =>  $order_info['firstname']. ' '. $order_info['lastname']
 
         );
 
@@ -152,9 +148,6 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
         $Api = CheckoutApi_Api::getApi(array('mode' => $this->config->get('test_mode')));
         $paymentTokenCharge = $Api->getPaymentToken($config);
-
-        echo '<pre>';
-        print_r($config); die();
 
         $paymentTokenArray    =   array(
             'message'   =>    '',
