@@ -37,6 +37,8 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $this->data['text_lp_yes']                   = $this->language->get('text_lp_yes');
         $this->data['text_lp_no']                    = $this->language->get('text_lp_no');
         $this->data['text_gateway_timeout']          = $this->language->get('text_gateway_timeout');
+        $this->data['text_symbol']                   = $this->language->get('text_symbol');
+        $this->data['text_code']                     = $this->language->get('text_code');
 
         $this->data['entry_test_mode']               = $this->language->get('entry_test_mode');
         $this->data['entry_secret_key']              = $this->language->get('entry_secret_key');
@@ -53,7 +55,12 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $this->data['entry_sort_order']              = $this->language->get('entry_sort_order');
         $this->data['entry_status']                  = $this->language->get('entry_status');
         $this->data['entry_sort_order']              = $this->language->get('entry_sort_order');
-        $this->data['entry_gateway_timeout']            = $this->language->get('entry_gateway_timeout');
+        $this->data['entry_gateway_timeout']         = $this->language->get('entry_gateway_timeout');
+        $this->data['entry_logo_url']                = $this->language->get('entry_logo_url');
+        $this->data['entry_theme_color']             = $this->language->get('entry_theme_color');
+        $this->data['entry_button_color']            = $this->language->get('entry_button_color');
+        $this->data['entry_icon_color']              = $this->language->get('entry_icon_color');
+        $this->data['entry_currency_format']         = $this->language->get('entry_currency_format');
 
         $this->data['button_save']                   = $this->language->get('button_save');
         $this->data['button_cancel']                 = $this->language->get('button_cancel');
@@ -146,6 +153,37 @@ class ControllerPaymentcheckoutapipayment extends Controller
         } else {
             $this->data['gateway_timeout'] = $this->config->get('gateway_timeout');
         }
+
+        if (isset($this->request->post['logo_url'])) {
+            $this->data['logo_url'] = $this->request->post['logo_url'];
+        } else {
+            $this->data['logo_url'] = $this->config->get('logo_url');
+        }
+
+        if (isset($this->request->post['theme_color'])) {
+            $this->data['theme_color'] = $this->request->post['theme_color'];
+        } else {
+            $this->data['theme_color'] = $this->config->get('theme_color');
+        }
+
+        if (isset($this->request->post['button_color'])) {
+            $this->data['button_color'] = $this->request->post['button_color'];
+        } else {
+            $this->data['button_color'] = $this->config->get('button_color');
+        }
+
+        if (isset($this->request->post['icon_color'])) {
+            $this->data['icon_color'] = $this->request->post['icon_color'];
+        } else {
+            $this->data['icon_color'] = $this->config->get('icon_color');
+        }
+
+        if (isset($this->request->post['currency_format'])) {
+            $this->data['currency_format'] = $this->request->post['currency_format'];
+        } else {
+            $this->data['currency_format'] = $this->config->get('currency_format');
+        }
+
 
         if (isset($this->request->post['checkout_successful_order'])) {
             $this->data['checkout_successful_order'] = $this->request->post['checkout_successful_order'];

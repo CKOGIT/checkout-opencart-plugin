@@ -11,18 +11,17 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         $config['debug'] = false;
         $config['email'] =  $order_info['email'];
         $config['name'] = $order_info['firstname']. ' '.$order_info['lastname'];
-        $config['amount'] =  ($order_info['total']) * 100;
         $config['currency'] =  $this->currency->getCode();
         $config['widgetSelector'] =  '.widget-container';
         $paymentTokenArray = $this->generatePaymentToken();
         $localPayment = $this->config->get('localpayment_enable');
         $mode = $this->config->get('test_mode');
-        $amount = ($order_info['total'])*100;
+        $amount = ($this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false))*100;
 
         if($mode == 'live'){
             $url = 'https://www.checkout.com/cdn/js/checkout.js';
         } else {
-            $url = 'http://sandbox.checkout.com/js/v1/checkout.js';
+            $url = 'https://sandbox.checkout.com/js/v1/checkout.js';
         }
 
         if($localPayment == 'yes'){
@@ -49,7 +48,11 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'success'           =>  $paymentTokenArray['success'],
             'eventId'           =>  $paymentTokenArray['eventId'],
             'textWait'          =>  $this->language->get('text_wait'),
-
+            'logoUrl'           =>  $this->config->get('logo_url'),
+            'themeColor'        =>  $this->config->get('theme_color'),
+            'buttonColor'       =>  $this->config->get('button_color'),
+            'iconColor'         =>  $this->config->get('icon_color'),
+            'currencyFormat'    =>  $this->config->get('currency_format'),
         );
 
         foreach ($toReturn as $key=>$val) {
@@ -87,7 +90,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         $productsLoad= $this->cart->getProducts();
         $scretKey = $this->config->get('secret_key');
         $orderId = $this->session->data['order_id'];
-        $amountCents = ($order_info['total'])*100;
+        $amountCents = ($this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false))*100;
         $config['authorization'] = $scretKey  ;
         $config['mode'] = $this->config->get('test_mode');
         $config['timeout'] =  $this->config->get('gateway_timeout');
@@ -99,6 +102,8 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
             $config = array_merge($config,$this->_authorizeConfig());
         }
+
+
 
 
         $products = array();
@@ -116,7 +121,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'addressLine1'       =>  $order_info['payment_address_1'],
             'addressLine2'       =>  $order_info['payment_address_2'],
             'postcode'           =>  $order_info['payment_postcode'],
-            'country'            =>  $order_info['payment_iso_code_3'],
+            'country'            =>  $order_info['payment_iso_code_2'],
             'city'               =>  $order_info['payment_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
 
@@ -126,7 +131,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'addressLine1'       =>  $order_info['shipping_address_1'],
             'addressLine2'       =>  $order_info['shipping_address_2'],
             'postcode'           =>  $order_info['shipping_postcode'],
-            'country'            =>  $order_info['shipping_iso_code_3'],
+            'country'            =>  $order_info['shipping_iso_code_2'],
             'city'               =>  $order_info['shipping_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
            // 'recipientName'	 =>  $order_info['firstname']. ' '. $order_info['lastname']
@@ -147,6 +152,9 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
         $Api = CheckoutApi_Api::getApi(array('mode' => $this->config->get('test_mode')));
         $paymentTokenCharge = $Api->getPaymentToken($config);
+
+        echo '<pre>';
+        print_r($config); die();
 
         $paymentTokenArray    =   array(
             'message'   =>    '',
