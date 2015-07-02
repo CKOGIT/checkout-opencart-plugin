@@ -30,6 +30,17 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             $paymentMode = 'card';
         }
 
+
+        $billingAddressConfig = array(
+            'addressLine1'       =>  $order_info['payment_address_1'],
+            'addressLine2'       =>  $order_info['payment_address_2'],
+            'postcode'           =>  $order_info['payment_postcode'],
+            'country'            =>  $order_info['payment_iso_code_2'],
+            'city'               =>  $order_info['payment_city'],
+            'phone'              =>  array('number' => $order_info['telephone']),
+
+        );
+
         $toReturn = array(
             'text_card_details' =>  $this->language->get('text_card_details'),
             'text_wait'         =>  $this->language->get('text_wait'),
@@ -53,6 +64,14 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'buttonColor'       =>  $this->config->get('button_color'),
             'iconColor'         =>  $this->config->get('icon_color'),
             'currencyFormat'    =>  $this->config->get('currency_format'),
+            'button_confirm'    =>  $this->language->get('button_confirm'),
+            'trackId'           =>  $order_info['order_id'],
+            'addressLine1'      =>  $order_info['payment_address_1'],
+            'addressLine2'      =>  $order_info['payment_address_2'],
+            'postcode'          =>  $order_info['payment_postcode'],
+            'country'           =>  $order_info['payment_iso_code_2'],
+            'city'              =>  $order_info['payment_city'],
+            'phone'             =>  $order_info['telephone'],
         );
 
         foreach ($toReturn as $key=>$val) {
