@@ -5,7 +5,6 @@ abstract class Controller_Methods_Abstract extends Controller
 
     protected function index()
     {
-
         $this->language->load('payment/checkoutapipayment');
         $data = $this->getData();
         foreach ($data as $key=>$val) {
@@ -43,19 +42,16 @@ abstract class Controller_Methods_Abstract extends Controller
 
     protected function _placeorder()
     {
-
         $this->load->model('checkout/order');
-
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
         //building charge
-
         $respondCharge = $this->_createCharge($order_info);
 
         if( $respondCharge->isValid()) {
 
             if (preg_match('/^1[0-9]+$/', $respondCharge->getResponseCode())) {
-                $Message = 'Your transaction has been successfully authorized with transaction id : '.$respondCharge->getId();
+                $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
 
                 if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
                     $this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('checkout_successful_order'), $Message, true);
@@ -87,9 +83,9 @@ abstract class Controller_Methods_Abstract extends Controller
         }
         $this->response->setOutput(json_encode($json));
     }
+
     protected function _createCharge($order_info)
     {
-
         $config = array();
         $this->load->model('checkout/order');
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);

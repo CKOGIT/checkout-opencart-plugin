@@ -21,6 +21,8 @@ $_['text_pci_no']         = 'No';
 $_['text_lp_yes']         = 'Yes';
 $_['text_lp_no']          = 'No';
 $_['text_gateway_timeout']= '0';
+$_['text_symbol']         = 'Symbol';
+$_['text_code']         = 'Code';
 
 // Entry
 $_['entry_test_mode']               = 'Production Mode*';
@@ -39,6 +41,11 @@ $_['entry_sort_order']			    = 'Sort Order';
 $_['entry_status']                  = 'Status';
 $_['entry_sort_order']              = 'Sort Order';
 $_['entry_gateway_timeout']         = 'Gateway timeout';
+$_['entry_logo_url']                = 'Logo URL';
+$_['entry_theme_color']             = 'Theme Color';
+$_['entry_button_color']            = 'Button Color';
+$_['entry_icon_color']              = 'Icon Color';
+$_['entry_currency_format']         = 'Widget currency format';
 
 // Error
 $_['error_permission']			    = 'Warning: You do not have permission to modify Checkout.com Payment Module!';

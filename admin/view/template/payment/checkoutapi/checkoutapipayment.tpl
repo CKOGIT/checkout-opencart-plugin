@@ -185,6 +185,47 @@
                                     </tr>
                                  </table>
                              </div>
+                        <h3 class="setting-header">Advance option for Checkout.js</h3>
+                        <div class="field">
+                            <table class="form">
+                                <tr>
+                                    <td><?php echo $entry_logo_url; ?></td>
+                                    <td><input type="text" name="logo_url" value="<?php echo $logo_url; ?>" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><?php echo $entry_theme_color; ?></td>
+                                    <td><input type="text" name="theme_color" value="<?php echo $theme_color; ?>" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><?php echo $entry_button_color; ?></td>
+                                    <td><input type="text" name="button_color" value="<?php echo $button_color; ?>" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><?php echo $entry_icon_color; ?></td>
+                                    <td><input type="text" name="icon_color" value="<?php echo $icon_color; ?>" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><?php echo $entry_currency_format; ?></td>
+                                    <td><select name="currency_format">
+                                            <?php if ($currency_format == 'symbol') { ?>
+                                            <option value="false" selected="selected"><?php echo $text_symbol; ?></option>
+                                            <?php } else { ?>
+                                            <option value="true"><?php echo $text_code; ?></option>
+                                            <?php } ?>
+                                            <?php if ($currency_format == 'code') { ?>
+                                            <option value="true" selected="selected"><?php echo $text_code; ?></option>
+                                            <?php } else { ?>
+                                            <option value="false"><?php echo $text_symbol; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </form>
                 </div>
             </div>
