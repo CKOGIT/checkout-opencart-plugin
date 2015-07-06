@@ -47,15 +47,10 @@
             <label class="col-sm-2 control-label" for="input-mode"><?php echo $entry_test_mode; ?></label>
             <div class="col-sm-10">
                 <select name="checkoutapipayment_test_mode" id="input-mode" class="form-control">
-                    <?php if ($checkoutapipayment_test_mode == 'test') { ?>
-                    <option value="test" selected="selected"><?php echo $text_mode_test; ?></option>
+                    <?php if ($checkoutapipayment_test_mode == 'sandbox') { ?>
+                    <option value="sandbox" selected="selected"><?php echo $text_mode_sandbox; ?></option>
                     <?php } else { ?>
-                    <option value="test"><?php echo $text_mode_test; ?></option>
-                    <?php } ?>
-                    <?php if ($checkoutapipayment_test_mode == 'preprod') { ?>
-                    <option value="preprod" selected="selected"><?php echo $text_mode_prod; ?></option>
-                    <?php } else { ?>
-                    <option value="preprod"><?php echo $text_mode_prod; ?></option>
+                    <option value="sandbox"><?php echo $text_mode_sandbox; ?></option>
                     <?php } ?>
                     <?php if ($checkoutapipayment_test_mode == 'live') { ?>
                     <option value="live" selected="selected"><?php echo $text_mode_live; ?></option>
@@ -180,6 +175,55 @@
                 <input type="text" name="checkoutapipayment_sort_order" value="<?php echo $checkoutapipayment_sort_order; ?>" id="input-sort-order" class="form-control" />
             </div>
         </div>
+        <fieldset>
+            <legend><?php echo $text_button_settings; ?></legend>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-logo-url"><?php echo $entry_logo_url; ?></label>
+                <div class="col-sm-10">
+                    <input type="text" name="checkoutapipayment_logo_url" value="<?php echo $checkoutapipayment_logo_url; ?>" placeholder="<?php echo $entry_logo_url; ?>" id="input-logo-url" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-theme-color"><?php echo $entry_theme_color; ?></label>
+                <div class="col-sm-10">
+                    <input type="text" name="checkoutapipayment_theme_color" value="<?php echo $checkoutapipayment_theme_color; ?>" placeholder="<?php echo $entry_theme_color; ?>" id="input-theme-color" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-button-color"><?php echo $entry_button_color; ?></label>
+                <div class="col-sm-10">
+                    <input type="text" name="checkoutapipayment_button_color" value="<?php echo $checkoutapipayment_button_color; ?>" placeholder="<?php echo $entry_button_color; ?>" id="input-button-color" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-icon-color"><?php echo $entry_icon_color; ?></label>
+                <div class="col-sm-10">
+                    <input type="text" name="checkoutapipayment_icon_color" value="<?php echo $checkoutapipayment_icon_color; ?>" placeholder="<?php echo $entry_icon_color; ?>" id="input-icon-color" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-currency-format"><?php echo $entry_currency_format; ?></label>
+                <div class="col-sm-10">
+                    <select name="checkoutapipayment_currency_format" id="input-currency-format" class="form-control">
+                        <?php if ($checkoutapipayment_currency_format == 'code') { ?>
+                        <option value="true" selected="selected"><?php echo $text_code; ?></option>
+                        <?php } else { ?>
+                        <option value="true"><?php echo $text_code; ?></option>
+                        <?php } ?>
+                        <?php if ($checkoutapipayment_currency_format == 'symbol') { ?>
+                        <option value="false" selected="selected"><?php echo $text_symbol; ?></option>
+                        <?php } else { ?>
+                        <option value="false"><?php echo $text_symbol; ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+
+            
+
+         </fieldset>
+
+
     </form>
 </div>
 </div>

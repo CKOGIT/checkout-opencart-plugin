@@ -28,8 +28,7 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $data['text_page_title']               = $this->language->get('text_page_title');
         $data['text_status_on']                = $this->language->get('text_status_on');
         $data['text_status_off']               = $this->language->get('text_status_off');
-        $data['text_mode_test']                = $this->language->get('text_mode_test');
-        $data['text_mode_prod']                = $this->language->get('text_mode_prod');
+        $data['text_mode_sandbox']             = $this->language->get('text_mode_sandbox');
         $data['text_mode_live']                = $this->language->get('text_mode_live');
         $data['text_auth_only']                = $this->language->get('text_auth_only');
         $data['text_auth_capture']             = $this->language->get('text_auth_capture');
@@ -38,6 +37,9 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $data['text_localPayment_yes']         = $this->language->get('text_localPayment_yes');
         $data['text_localPayment_no']          = $this->language->get('text_localPayment_no');
         $data['text_gateway_timeout']          = $this->language->get('text_gateway_timeout');
+        $data['text_button_settings']          = $this->language->get('text_button_settings');
+        $data['text_code']                     = $this->language->get('text_code');
+        $data['text_symbol']                   = $this->language->get('text_symbol');
 
         $data['entry_test_mode']               = $this->language->get('entry_test_mode');
         $data['entry_secret_key']              = $this->language->get('entry_secret_key');
@@ -55,6 +57,11 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $data['entry_status']                  = $this->language->get('entry_status');
         $data['entry_sort_order']              = $this->language->get('entry_sort_order');
         $data['entry_gateway_timeout']         = $this->language->get('entry_gateway_timeout');
+        $data['entry_logo_url']                = $this->language->get('entry_logo_url');
+        $data['entry_theme_color']             = $this->language->get('entry_theme_color');
+        $data['entry_button_color']            = $this->language->get('entry_button_color');
+        $data['entry_icon_color']              = $this->language->get('entry_icon_color');
+        $data['entry_currency_format']         = $this->language->get('entry_currency_format');
 
         $data['button_save']                   = $this->language->get('button_save');
         $data['button_cancel']                 = $this->language->get('button_cancel');
@@ -165,6 +172,36 @@ class ControllerPaymentcheckoutapipayment extends Controller
             $data['checkoutapipayment_checkout_failed_order'] = $this->request->post['checkoutapipayment_checkout_failed_order'];
         } else {
             $data['checkoutapipayment_checkout_failed_order'] = $this->config->get('checkoutapipayment_checkout_failed_order');
+        }
+
+        if (isset($this->request->post['checkoutapipayment_logo_url'])) {
+            $data['checkoutapipayment_logo_url'] = $this->request->post['checkoutapipayment_logo_url'];
+        } else {
+            $data['checkoutapipayment_logo_url'] = $this->config->get('checkoutapipayment_logo_url');
+        }
+
+        if (isset($this->request->post['checkoutapipayment_theme_color'])) {
+            $data['checkoutapipayment_theme_color'] = $this->request->post['checkoutapipayment_theme_color'];
+        } else {
+            $data['checkoutapipayment_theme_color'] = $this->config->get('checkoutapipayment_theme_color');
+        }
+
+        if (isset($this->request->post['checkoutapipayment_button_color'])) {
+            $data['checkoutapipayment_button_color'] = $this->request->post['checkoutapipayment_button_color'];
+        } else {
+            $data['checkoutapipayment_button_color'] = $this->config->get('checkoutapipayment_button_color');
+        }
+
+        if (isset($this->request->post['checkoutapipayment_icon_color'])) {
+            $data['checkoutapipayment_icon_color'] = $this->request->post['checkoutapipayment_icon_color'];
+        } else {
+            $data['checkoutapipayment_icon_color'] = $this->config->get('checkoutapipayment_icon_color');
+        }
+
+        if (isset($this->request->post['checkoutapipayment_currency_format'])) {
+            $data['checkoutapipayment_currency_format'] = $this->request->post['checkoutapipayment_currency_format'];
+        } else {
+            $data['checkoutapipayment_currency_format'] = $this->config->get('checkoutapipayment_currency_format');
         }
 
         $this->load->model('localisation/order_status');
