@@ -28,16 +28,8 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
 
                 $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
 
-                if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
-                    $this->model_checkout_order->confirm($trackId, $this->config->get('checkout_successful_order'), $Message, true);
-                }
-
-                if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
-                    $this->model_checkout_order->update($trackId, $this->config->get('checkout_successful_order'), $Message, true);
-                    $this->session->data['fail_transaction'] = false;
-                }
-
-                $success = $this->url->link('checkout/success', '', 'SSL');
+                $this->model_checkout_order->confirm($_POST['cko-track-id'], $this->config->get('checkout_successful_order'), $Message, true);
+                $success = $this->data['continue'] = $this->url->link('checkout/success');
 
                 header("Location: ".$success);
 
@@ -46,10 +38,10 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
                 $Payment_Error = 'Transaction failed : '.$respondCharge->getErrorMessage(). ' with response code : '.$respondCharge->getResponseCode();
 
                 if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
-                    $this->model_checkout_order->confirm($trackId, $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    $this->model_checkout_order->confirm($_POST['cko-track-id'], $this->config->get('checkout_failed_order'), $Payment_Error, true);
                 }
                 if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
-                    $this->model_checkout_order->update($trackId, $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    $this->model_checkout_order->update($_POST['cko-track-id'], $this->config->get('checkout_failed_order'), $Payment_Error, true);
                 }
                 $json['error'] = 'We are sorry, but you transaction could not be processed. Please verify your card information and try again.'  ;
                 $this->session->data['fail_transaction'] = true;
