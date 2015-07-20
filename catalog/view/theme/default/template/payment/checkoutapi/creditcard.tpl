@@ -1,8 +1,5 @@
-<div class="widget-container"></div>
+<div class="widget-container" align="center"></div>
 
-<div class="buttons">
-<a  class="button" href="#" id="checkoutapi-button">Pay now </a>
-</div>
 <script type="text/javascript">
 
     $.ajax({
@@ -12,7 +9,7 @@
         beforeSend: function(){
             window.CKOConfig = {
                 debugMode: false,
-                renderMode: 0,
+                renderMode: 1,
                 namespace: 'CheckoutIntegration',
                 publicKey: '<?php echo $publicKey ?>',
                 paymentToken: "<?php echo $paymentToken ?>",
@@ -75,13 +72,23 @@
                 },
 
                 ready: function(){
+                    jQuery('.cko-loader').show();
+                },
+                widgetRendered: function(){
+                document.getElementsByClassName('cko-pay-now')[0].innerHTML ="test";
+
+                    jQuery('.cko-loader').hide();
                    if(typeof CheckoutIntegration !='undefined') {
+
                        if(!CheckoutIntegration.isMobile()){
+
                            jQuery('#checkoutapi-button').hide();
                        }
                        else {
                            jQuery('.widget-container').hide();
-                           jQuery('#checkoutapi-button').attr('href', CheckoutIntegration.getRedirectionUrl()+'&trackId=<?php echo $trackId?>');
+
+
+                           jQuery('#checkoutapi-button').attr('href', CheckoutIntegration.getRedirectionUrl()+'&trackId=<?php echo $trackId?>').show();
                        }
                    }
                 },
@@ -94,5 +101,8 @@
 
     });
 </script>
-
+<p class="cko-loader" style="display:none">
+<img src="catalog/view/theme/default/image/loading.gif" alt="" />
+</p>
+<a  class="button" href="#" id="checkoutapi-button" style="display:none">Pay now </a>
 <input type="hidden" name="cko_cc_paymenToken" id="cko-cc-paymenToken" value="">
