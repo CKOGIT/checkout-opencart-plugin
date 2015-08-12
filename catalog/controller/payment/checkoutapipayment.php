@@ -14,6 +14,7 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
 
         $this->load->model('checkout/order');
         $trackId = $this->model_checkout_order->getOrder($_POST['cko-track-id']);
+        $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
         $scretKey = $this->config->get('secret_key');
         $config['authorization'] = $scretKey  ;
         $config['paymentToken']  = $_POST['cko-payment-token'];
@@ -22,11 +23,28 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
         $json = $respondBody->getRawOutput();
         $respondCharge = $Api->chargeToObj($json);
 
+        $amount = ($this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false))*100;
+
+        $toValidate = array(
+            'currency' => $this->currency->getCode(),
+            'value' => $amount,
+            'trackId' => $this->session->data['order_id'],
+        );
+
+        $Api = CheckoutApi_Api::getApi(array('mode'=> $this->config->get('test_mode')));
+        $validateRequest = $Api::validateRequest($toValidate,$respondCharge);
+
         if( $respondCharge->isValid()) {
 
             if (preg_match('/^1[0-9]+$/', $respondCharge->getResponseCode())) {
 
                 $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
+
+                if(!$validateRequest['status']){
+                    foreach($validateRequest['message'] as $errormessage){
+                        $Message .= '. '.$errormessage . '. ';
+                    }
+                }
 
                 $this->model_checkout_order->confirm($_POST['cko-track-id'], $this->config->get('checkout_successful_order'), $Message, true);
                 $success = $this->data['continue'] = $this->url->link('checkout/success');
@@ -63,51 +81,52 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
 
         $objectCharge = $Api->chargeToObj($stringCharge);
 
+        $this->load->model('checkout/order');
+        $order_id = $objectCharge->getTrackId();
+
+        $order_info = $this->model_checkout_order->getOrder($order_id);
+
+        $amount = ($this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false))*100;
+
+        $toValidate = array(
+            'currency' => $this->currency->getCode(),
+            'value' => $amount,
+            'trackId' => $order_id,
+        );
+
+        $Api = CheckoutApi_Api::getApi(array('mode'=> $this->config->get('test_mode')));
+        $validateRequest = $Api::validateRequest($toValidate,$objectCharge);
+
         if($objectCharge->isValid()) {
-          //  $this->load->model('sale/order');
-           /*
-            * Need to get track id
-            */
-            $order_id = $objectCharge->getTrackId();
 
-            $modelOrder = $this->load->model('checkout/order');
+            $Message = 'Webhook received from Checkout.com. ' ;
 
-            $order_statuses = $this->getOrderStatuses();
-            $status_mapped = array();
-
-            foreach($order_statuses as $status){
-                $status_mapped[$status['name']] = $status['order_status_id'];
+            if(!$validateRequest['status']){
+                foreach($validateRequest['message'] as $errormessage){
+                    $Message .= $errormessage . '. ';
+                }
             }
-
 
             if ( $objectCharge->getCaptured ()) {
-                $this->model_checkout_order->update(
-                    $order_id,
-                    $status_mapped['Complete'],
-                    "",
-                    true
-                );
-                echo "Order has been captured";
+
+                $Message .= ' Order has been captured';
+                $this->model_checkout_order->update($order_id, $this->config->get('checkout_successful_order'), $Message, true);
 
             } elseif ( $objectCharge->getRefunded () ) {
-                $this->model_checkout_order->update(
-                    $order_id,
-                    $status_mapped['Refunded'],
-                    "",
-                    true
-                );
-                echo "Order has been refunded";
+
+                $Message .= ' Order has been refunded';
+                $this->model_checkout_order->update($order_id, $this->config->get('checkout_successful_order'), $Message, true);
+
 
             } elseif(!$objectCharge->getAuthorised()) {
-                $this->model_checkout_order->update(
-                    $order_id,
-                    $this->config->get('checkout_failed_order'),
-                    "",
-                    true
-                );
-                echo "Order has been Cancel";
+
+                $Message .= ' Order has been Authorised';
+                $this->model_checkout_order->update($order_id, $this->config->get('checkout_successful_order'), $Message, true);
+
             }
+
         }
+
     }
 
     private function _process()

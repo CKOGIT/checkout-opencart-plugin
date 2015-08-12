@@ -9,7 +9,6 @@
         beforeSend: function(){
             window.CKOConfig = {
                 debugMode: false,
-                renderMode: 1,
                 namespace: 'CheckoutIntegration',
                 publicKey: '<?php echo $publicKey ?>',
                 paymentToken: "<?php echo $paymentToken ?>",
@@ -75,7 +74,6 @@
                     jQuery('.cko-loader').show();
                 },
                 widgetRendered: function(){
-                document.getElementsByClassName('cko-pay-now')[0].innerHTML ="test";
 
                     jQuery('.cko-loader').hide();
                    if(typeof CheckoutIntegration !='undefined') {
