@@ -75,8 +75,7 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
         if(isset($_GET['chargeId'])) {
             $stringCharge = $this->_process();
         }else {
-           // $stringCharge = file_get_contents ( "php://input" );
-            $stringCharge = '{"eventType":"charge.captured", "message":{"id":"charge_test_414E76A5EE8V7AF8E4CB","originalId":"B1897B5D479X76BC4DD5","liveMode":false,"created":"2015-08-12T09:18:02Z","value":164.00,"currency":"USD","trackId":"866","description":"Order number::866","chargeMode":1,"responseMessage":"Approved","responseAdvancedInfo":"Approved","responseCode":"10000","status":"Captured","metadata":null,"products":[{"name":"iPhone","description":null,"sku":"40::","price":1.5700,"quantity":1,"image":null,"shippingCost":0.0000,"trackingUrl":null}],"udf1":null,"udf2":null,"udf3":null,"udf4":null,"udf5":null}}';
+            $stringCharge = file_get_contents ( "php://input" );
         }
         $Api = CheckoutApi_Api::getApi(array('mode'=> $this->config->get('test_mode')));
 
