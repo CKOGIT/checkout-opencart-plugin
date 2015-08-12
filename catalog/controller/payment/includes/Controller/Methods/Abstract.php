@@ -2,7 +2,6 @@
 abstract class Controller_Methods_Abstract extends Controller
 {
 
-
     protected function index()
     {
         $this->language->load('payment/checkoutapipayment');
@@ -44,14 +43,32 @@ abstract class Controller_Methods_Abstract extends Controller
     {
         $this->load->model('checkout/order');
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+        $amount = ($this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false))*100;
+
+        $toValidate = array(
+            'currency' => $this->currency->getCode(),
+            'value' => $amount,
+            'trackId' => $this->session->data['order_id'],
+        );
 
         //building charge
         $respondCharge = $this->_createCharge($order_info);
+        $Api = CheckoutApi_Api::getApi(array('mode'=> $this->config->get('test_mode')));
+        $validateRequest = $Api::validateRequest($toValidate,$respondCharge);
+
 
         if( $respondCharge->isValid()) {
 
             if (preg_match('/^1[0-9]+$/', $respondCharge->getResponseCode())) {
                 $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
+
+
+                if(!$validateRequest['status']){
+                    foreach($validateRequest['message'] as $errormessage){
+                        $Message .= '. '.$errormessage . '. ';
+                    }
+                }
+
 
                 if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
                     $this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('checkout_successful_order'), $Message, true);
