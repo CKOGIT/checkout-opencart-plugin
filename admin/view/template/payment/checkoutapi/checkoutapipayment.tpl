@@ -175,6 +175,26 @@
                 <input type="text" name="checkoutapipayment_sort_order" value="<?php echo $checkoutapipayment_sort_order; ?>" id="input-sort-order" class="form-control" />
             </div>
         </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-mode"><?php echo $entry_3D_secure; ?></label>
+            <div class="col-sm-10">
+                <select name="checkoutapipayment_3D_secure" id="input-3d-mode" class="form-control">
+
+                    <?php if ($checkoutapipayment_3D_secure == 'no') { ?>
+                    <option value="no" selected="selected"><?php echo $text_3D_no; ?></option>
+                    <?php } else { ?>
+                    <option value="no"><?php echo $text_3D_no; ?></option>
+                    <?php } ?>
+                    <?php if ($checkoutapipayment_3D_secure == 'yes') { ?>
+                    <option value="yes" selected="selected"><?php echo $text_3D_yes; ?></option>
+                    <?php } else { ?>
+                    <option value="yes"><?php echo $text_3D_yes; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+
         <fieldset>
             <legend><?php echo $text_button_settings; ?></legend>
             <div class="form-group">

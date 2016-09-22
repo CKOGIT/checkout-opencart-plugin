@@ -11,9 +11,7 @@ class ControllerPaymentcheckoutapipayment extends Controller
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate())
         {
-           // print_r($this->request->post); die();
             $this->model_setting_setting->editSetting('checkoutapipayment', $this->request->post);
-
             $this->session->data['success'] = $this->language->get('text_success');
             $this->response->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
 
@@ -40,6 +38,8 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $data['text_button_settings']          = $this->language->get('text_button_settings');
         $data['text_code']                     = $this->language->get('text_code');
         $data['text_symbol']                   = $this->language->get('text_symbol');
+        $data['text_3D_yes']                   = $this->language->get('text_3D_yes');
+        $data['text_3D_no']                    = $this->language->get('text_3D_no');
 
         $data['entry_test_mode']               = $this->language->get('entry_test_mode');
         $data['entry_secret_key']              = $this->language->get('entry_secret_key');
@@ -62,6 +62,7 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $data['entry_button_color']            = $this->language->get('entry_button_color');
         $data['entry_icon_color']              = $this->language->get('entry_icon_color');
         $data['entry_currency_format']         = $this->language->get('entry_currency_format');
+        $data['entry_3D_secure']               = $this->language->get('entry_3D_secure');
 
         $data['button_save']                   = $this->language->get('button_save');
         $data['button_cancel']                 = $this->language->get('button_cancel');
@@ -114,17 +115,17 @@ class ControllerPaymentcheckoutapipayment extends Controller
             $data['checkoutapipayment_test_mode'] = $this->config->get('checkoutapipayment_test_mode');
         }
 
+        if (isset($this->request->post['checkoutapipayment_3D_secure'])) {
+            $data['checkoutapipayment_3D_secure'] = $this->request->post['checkoutapipayment_3D_secure'];
+        } else {
+            $data['checkoutapipayment_3D_secure'] = $this->config->get('checkoutapipayment_3D_secure');
+        }
+
         if (isset($this->request->post['checkoutapipayment_secret_key'])) {
             $data['checkoutapipayment_secret_key'] = $this->request->post['checkoutapipayment_secret_key'];
         } else {
             $data['checkoutapipayment_secret_key'] = $this->config->get('checkoutapipayment_secret_key');
         }
-
-//        if (isset($this->request->post['secret_key'])) {
-//            $data['secret_key'] = $this->request->post['secret_key'];
-//        } else {
-//            $data['secret_key'] = $this->config->get('secret_key');
-//        }
 
         if (isset($this->request->post['checkoutapipayment_public_key'])) {
             $data['checkoutapipayment_public_key'] = $this->request->post['checkoutapipayment_public_key'];

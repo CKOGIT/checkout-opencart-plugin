@@ -4,7 +4,7 @@
         <div class="form-group required">
             <label class="col-sm-2 control-label" for="input-cc-owner"><?php echo $entry_cc_owner; ?></label>
             <div class="col-sm-10">
-                <input type="text" name="cc_owner" value="" placeholder="<?php echo $entry_cc_owner; ?>" id="input-cc-owner" class="form-control" />
+                <input type="text" name="cc_owner" value="" placeholder="<?php echo $entry_cc_owner; ?>" id="input-cc-owner" class="form-control" required/>
             </div>
         </div>
         <div class="form-group required">
