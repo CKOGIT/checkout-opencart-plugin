@@ -9,54 +9,67 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
 
     public function successPage()
     {
-
-
         $this->load->model('checkout/order');
-        $trackId = $this->model_checkout_order->getOrder($_POST['cko-track-id']);
-
-
+        $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
         $scretKey = $this->config->get('checkoutapipayment_secret_key');
         $config['authorization'] = $scretKey  ;
-        $config['paymentToken']  = $_POST['cko-payment-token'];
+        $config['paymentToken']  = $_REQUEST['cko-payment-token'];
         $Api = CheckoutApi_Api::getApi(array('mode'=> $this->config->get('checkoutapipayment_test_mode')));
         $respondBody = $Api->verifyChargePaymentToken($config);
-        $json = $respondBody->getRawOutput();
-        $respondCharge = $Api->chargeToObj($json);
-
+        $obj = $respondBody->getRawOutput();
+        $respondCharge = $Api->chargeToObj($obj);
+        $trackId = $respondCharge->getTrackId();
 
         if( $respondCharge->isValid()) {
             if (preg_match('/^1[0-9]+$/', $respondCharge->getResponseCode())) {
 
-                $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
-                if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
-                    $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
-                }
+                if($respondCharge->getResponseCode()==10100){
 
-                if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
-                    $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
-                    $this->session->data['fail_transaction'] = false;
+                    $Message = 'Your transaction has been flagged with transaction id : '.$respondCharge->getId();
+
+                    if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
+                        $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], 1, $Message, true); // 1 for pending order
+                    }
+
+                    if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
+                        $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], 1, $Message, true); // 1 for pending order
+                        $this->session->data['fail_transaction'] = false;
+                    }
+                }else {
+
+                    $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
+
+                    if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
+                        $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
+                    }
+
+                    if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
+                        $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
+                        $this->session->data['fail_transaction'] = false;
+                    }
                 }
 
                 $json= $this->url->link('checkout/success', '', 'SSL');
-
                 $success = $this->url->link('checkout/success', '', 'SSL');
-
                 header("Location: ".$success);
+
             } else {
 
-                $Payment_Error = 'Transaction failed : '.$respondCharge->getErrorMessage(). ' with response code : '.$respondCharge->getResponseCode();
+                $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
                 if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
-                    $this->model_checkout_order->confirm($trackId, $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_failed_order'), $Message, false);
                 }
 
                 if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
-                    $this->model_checkout_order->update($trackId, $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_failed_order'), $Message, false);
+                    $this->session->data['fail_transaction'] = true;
                 }
 
-                $json['error'] = 'We are sorry, but you transaction could not be processed. Please verify your card information and try again.'  ;
+                $this->session->data['error'] = 'An error has occured while processing your order. Please check your card details or try with a different card';
 
-                $this->session->data['fail_transaction'] = true;
+                $this->response->redirect($this->url->link('checkout/checkout', '', 'SSL'));
+
             }
         } else  {
             $json['error'] = $respondCharge->getExceptionState()->getErrorMessage()  ;
@@ -80,7 +93,6 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
             $order_id = $objectCharge->getTrackId();
             $modelOrder = $this->load->model('checkout/order');
             $order_statuses = $this->getOrderStatuses();
-
             $status_mapped = array();
 
             foreach($order_statuses as $status){
@@ -91,7 +103,7 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
                 $this->model_checkout_order->addOrderHistory(
                     $order_id,
                     $status_mapped['Complete'],
-                    "Order status changed by webhook.",
+                    "Order status changed by webhook. Captured chargeId : ".$objectCharge->getId(),
                     true
                 );
                 echo "Order has been captured";
@@ -100,19 +112,19 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
                 $this->model_checkout_order->addOrderHistory(
                     $order_id,
                     $status_mapped['Refunded'],
-                    "",
+                    "Order status changed by webhook. Refund chargeId : ".$objectCharge->getId(),
                     true
                 );
                 echo "Order has been refunded";
 
-            } elseif(!$objectCharge->getAuthorised()) {
+            }  elseif ( $objectCharge->getVoided () ) {
                 $this->model_checkout_order->addOrderHistory(
                     $order_id,
-                    $this->config->get('checkoutapipayment_checkout_failed_order'),
-                    "",
+                    $status_mapped['Voided'],
+                    "Order status changed by webhook. Voided chargeId : ".$objectCharge->getId(),
                     true
                 );
-                echo "Order has been Cancel";
+                echo "Order has been voided";
             }
         }
     }

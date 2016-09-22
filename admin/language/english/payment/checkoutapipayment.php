@@ -24,8 +24,10 @@ $_['text_localPayment_yes'] = 'Yes';
 $_['text_localPayment_no']  = 'No';
 $_['text_success']		    = 'Success: Checkout.com has been updated';
 $_['text_button_settings']  = 'Advance option for Checkout.js';
-$_['text_code']  = 'Code';
-$_['text_symbol']  = 'Symbol';
+$_['text_code']             = 'Code';
+$_['text_symbol']           = 'Symbol';
+$_['text_3D_yes']           = 'Yes';
+$_['text_3D_no']           = 'No';
 
 
 // Entry
@@ -50,6 +52,7 @@ $_['entry_theme_color']             = 'Theme color';
 $_['entry_button_color']            = 'Button color';
 $_['entry_icon_color']              = 'Icon color';
 $_['entry_currency_format']         = 'Widget currency format';
+$_['entry_3D_secure']               = 'Enable 3D Secure?';
 
 // Error
 $_['error_permission']			    = 'Warning: You do not have permission to modify Checkout.com Payment Module!';
