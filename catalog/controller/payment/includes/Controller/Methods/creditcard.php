@@ -1,7 +1,6 @@
 <?php
 class Controller_Methods_creditcard extends Controller_Methods_Abstract implements Controller_Interface
 {
-
     public function getData()
     {
         $this->language->load('payment/checkoutapipayment');
@@ -11,7 +10,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         $config['email'] = $order_info['email'];
         $config['name'] = $order_info['firstname'] . ' ' . $order_info['lastname'];
         $config['amount'] = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
-        $config['currency'] = $this->currency->getCode();
+        $config['currency'] = $order_info['currency_code'];
         $config['widgetSelector'] = '.widget-container';
         $mode = $this->config->get('checkoutapipayment_test_mode');
         $localPayment = $this->config->get('checkoutapipayment_localpayment_enable');
@@ -33,7 +32,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'text_wait' => $this->language->get('text_wait'),
             'entry_public_key' => $this->config->get('checkoutapipayment_public_key'),
             'order_email' => $order_info['email'],
-            'order_currency' => $this->currency->getCode(),
+            'order_currency' => $order_info['currency_code'],
             'amount' => $config['amount'],
             'publicKey' => $this->config->get('checkoutapipayment_public_key'),
             'paymentMode' => $paymentMode,
@@ -117,8 +116,8 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
             $products[] = array (
                 'name'       =>     $item['name'],
-                'sku'        =>     $item['key'],
-                'price'      =>     $this->currency->format($item['price'], $this->currency->getCode(), false, false),
+                'sku'        =>     $item['product_id'],
+                'price'      =>     $item['price'],
                 'quantity'   =>     $item['quantity']
             );
         }
@@ -152,9 +151,9 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         }
 
         $config['postedParam'] = array_merge($config['postedParam'], array(
-            'email' => $order_info['email'],
-            'value' => $amountCents,
-            'currency' => $this->currency->getCode(),
+            'email'           => $order_info['email'],
+            'value'           => $amountCents,
+            'currency'        => $order_info['currency_code'],
             'chargeMode'      =>  $chargeMode,
             'trackId'         =>  $orderId,
             'description'     =>  "Order number::$orderId",

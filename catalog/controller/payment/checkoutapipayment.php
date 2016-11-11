@@ -8,7 +8,11 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
     }
 
     public function successPage()
-    {
+    { 
+        if(empty($_REQUEST['cko-payment-token'])){
+            return http_response_code(400);
+        }
+
         $this->load->model('checkout/order');
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
@@ -82,6 +86,10 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
             $stringCharge = $this->_process();
         }else {
             $stringCharge = file_get_contents ( "php://input" );
+        }
+
+        if(empty($stringCharge)){
+            return http_response_code(400);
         }
 
         $Api = CheckoutApi_Api::getApi(array('mode'=> $this->config->get('checkoutapipayment_test_mode')));
@@ -182,5 +190,4 @@ class ControllerPaymentcheckoutapipayment extends Controller_Model
             return $order_status_data;
         }
     }
-
 }

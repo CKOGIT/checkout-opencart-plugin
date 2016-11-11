@@ -1,8 +1,11 @@
 <?php
+
+define('PLUGIN_VERSION', '2.3.2');
+
 abstract class Controller_Methods_Abstract extends Controller
-{
+{   
     public function index()
-    {
+    {        
         $this->language->load('payment/checkoutapipayment');
         $data = $this->getData();
 
@@ -46,18 +49,42 @@ abstract class Controller_Methods_Abstract extends Controller
         if( $respondCharge->isValid()) {
 
             if (preg_match('/^1[0-9]+$/', $respondCharge->getResponseCode())) {
-                $Message = 'Your transaction has been successfully authorized with transaction id : '.$respondCharge->getId();
 
-                if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
-                    $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
+                if($respondCharge->getChargeMode() != 2) {
+
+                    if($respondCharge->getResponseCode()==10100){
+
+                        $Message = 'Your transaction has been flagged with transaction id : '.$respondCharge->getId();
+
+                        if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
+                            $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], 1, $Message, true); // 1 for pending order
+                        }
+
+                        if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
+                            $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], 1, $Message, true); // 1 for pending order
+                            $this->session->data['fail_transaction'] = false;
+                        }
+                    }else {
+                        $Message = 'Your transaction has been successfully authorized with transaction id : ' . $respondCharge->getId();
+
+                        if (!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
+                            $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
+                        }
+
+                        if (isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
+                            $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
+                            $this->session->data['fail_transaction'] = false;
+                        }
+                    }
+
+
+                    $json['redirect'] = $this->url->link('checkout/success', '', 'SSL');
+                } else {
+                    if (!empty($respondCharge['redirectUrl'])) {
+                        $json['redirect'] = $respondCharge['redirectUrl'];
+
+                    }
                 }
-
-                if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
-                    $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_successful_order'), $Message, false);
-                    $this->session->data['fail_transaction'] = false;
-                }
-
-                $json['redirect'] = $this->url->link('checkout/success', '', 'SSL');
 
             } else {
                 $Payment_Error = 'Transaction failed : '.$respondCharge->getErrorMessage(). ' with response code : '.$respondCharge->getResponseCode();
@@ -68,8 +95,10 @@ abstract class Controller_Methods_Abstract extends Controller
                 if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
                     $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('checkoutapipayment_checkout_failed_order'), $Payment_Error, false);
                 }
-                $json['error'] = 'We are sorry, but you transaction could not be processed. Please verify your card information and try again.'  ;
+                
+                $this->session->data['error'] = 'An error has occured while processing your order. Please check your card details or try with a different card';
                 $this->session->data['fail_transaction'] = true;
+                $json['redirect'] = $this->url->link('checkout/checkout', '', 'SSL');
             }
 
         } else  {
@@ -79,6 +108,7 @@ abstract class Controller_Methods_Abstract extends Controller
 
         $this->response->setOutput(json_encode($json));
     }
+
     protected function _createCharge($order_info)
     {
         $config = array();
@@ -87,17 +117,28 @@ abstract class Controller_Methods_Abstract extends Controller
         $productsLoad= $this->cart->getProducts();
         $scretKey = $this->config->get('checkoutapipayment_secret_key');
         $orderId = $this->session->data['order_id'];
-        $amountCents = (int) $order_info['total'] * 100;
+        $amountCents = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
         $config['authorization'] = $scretKey  ;
         $config['mode'] = $this->config->get('checkoutapipayment_test_mode');
         $config['timeout'] =  $this->config->get('checkoutapipayment_gateway_timeout');
 
-        if($this->config->get('checkoutapipayment_payment_action') =='authorize_capture') {
+        if($this->config->get('checkoutapipayment_payment_action') =='capture') {
             $config = array_merge($config, $this->_captureConfig());
-
         }else {
-
             $config = array_merge($config,$this->_authorizeConfig());
+        }
+
+        $is3D = $this->config->get('checkoutapipayment_3D_secure');
+        $chargeMode = 1;
+
+        if($is3D == 'yes'){
+            $chargeMode = 2;
+        }
+
+        $integrationType = 'Js';
+
+        if($this->config->get('checkoutapipayment_pci_enable') == 'yes'){
+            $integrationType = 'Api';
         }
 
         $products = array();
@@ -105,8 +146,8 @@ abstract class Controller_Methods_Abstract extends Controller
 
             $products[] = array (
                 'name'       =>     $item['name'],
-                'sku'        =>     $item['key'],
-                'price'      =>     $this->currency->format($item['price'], $this->currency->getCode(), false, false),
+                'sku'        =>     $item['product_id'],
+                'price'      =>     $item['price'],
                 'quantity'   =>     $item['quantity']
             );
         }
@@ -134,14 +175,25 @@ abstract class Controller_Methods_Abstract extends Controller
 
         $config['postedParam'] = array_merge($config['postedParam'],array (
             'email'              =>  $order_info['email'],
+            'customerName'       =>  $order_info['firstname']. ' '. $order_info['lastname'],
             'value'              =>  $amountCents,
-            'trackId'            => $orderId,
-            'currency'           =>  $this->currency->getCode(),
+            'trackId'            =>  $orderId,
+            'currency'           =>  $order_info['currency_code'],
             'description'        =>  "Order number::$orderId",
+            'chargeMode'         =>  $chargeMode,
             'shippingDetails'    =>  $shippingAddressConfig,
             'products'           =>  $products,
             'card'               =>  array (
                                         'billingDetails'   =>    $billingAddressConfig
+                                    ),
+            'metadata'           => array(
+                                        'server'            => $this->config->get('config_url'),
+                                        'quote_id'          => $orderId,
+                                        'oc_version'        => VERSION,
+                                        'plugin_version'    => PLUGIN_VERSION,
+                                        'lib_version'       => CheckoutApi_Client_Constant::LIB_VERSION,
+                                        'integration_type'  => $integrationType,
+                                        'time'              => date('Y-m-d H:i:s')
                                     )
         ));
 
