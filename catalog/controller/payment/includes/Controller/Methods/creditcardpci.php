@@ -68,8 +68,4 @@ class Controller_Methods_creditcardpci extends Controller_Methods_Abstract imple
 
         return $this->_getCharge($config);
     }
-
-
-
-
 }

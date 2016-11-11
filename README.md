@@ -8,3 +8,8 @@ Webhook
 =======
 
 Url : example.com/index.php?route=payment/checkoutapipayment/webhook
+
+Redirection
+=======
+
+Url : example.com/index.php?route=payment/checkoutapipayment/successPage
