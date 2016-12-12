@@ -1,3 +1,7 @@
+Version
+=======
+OpenCart 2.3
+
 Installation
 ============
 
