@@ -1,7 +1,7 @@
 Compatibility
 =============
 
-Opencart version 2.0-2.2:
+OpenCart versions 2.0 - 2.2
 
 Installation
 ============
