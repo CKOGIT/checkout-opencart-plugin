@@ -20,8 +20,8 @@ abstract class Controller_Model extends Controller
                 $this->setMethodInstance(new Controller_Methods_creditcardhosted($registry));
                 break;
 
-            case 'embedded':
-                $this->setMethodInstance(new Controller_Methods_creditcardembedded($registry));
+            case 'frames':
+                $this->setMethodInstance(new Controller_Methods_creditcardframes($registry));
                 break;
 
             default:
