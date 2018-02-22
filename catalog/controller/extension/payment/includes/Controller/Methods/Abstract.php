@@ -1,6 +1,6 @@
 <?php
 
-define('PLUGIN_VERSION', '2.4.0');
+define('PLUGIN_VERSION', '2.4.1');
 
 abstract class Controller_Methods_Abstract extends Controller
 {   

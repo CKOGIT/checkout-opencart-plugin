@@ -19,14 +19,14 @@ $_['text_auth_only']        = 'Authorize only';
 $_['text_auth_capture']     = 'Authorize and Capture';
 $_['text_integration_pci']	= 'PCI';
 $_['text_integration_hosted'] = 'Hosted';
-$_['text_integration_embedded'] = 'Embedded';
+$_['text_integration_frames'] = 'Frames';
 
 $_['text_gateway_timeout']  = '0';
 $_['text_success']		    = 'Success: Checkout.com has been updated';
 $_['text_button_settings']  = 'Advance option for Hosted solution';
-$_['text_embedded_settings']  = 'Advance option for Embedded solution';
-$_['text_theme_standard']  = 'Standard';
-$_['text_theme_simple']  = 'Simple';
+$_['text_frames_settings']  = 'Advance option for FramesJs';
+$_['text_theme_standard'] 	= 'Standard';
+$_['text_theme_simple']  	= 'Simple';
 $_['text_code']             = 'Code';
 $_['text_symbol']           = 'Symbol';
 $_['text_3D_yes']           = 'Yes';
@@ -60,8 +60,8 @@ $_['entry_icon_color']              = 'Icon color';
 $_['entry_currency_format']         = 'Widget currency format';
 $_['entry_3D_secure']               = 'Enable 3D Secure?';
 $_['entry_title']					= 'Title';
-$_['entry_embedded_theme']  		= 'Theme';
-$_['entry_custom_css']  			= 'Custom css url';
+$_['entry_frames_theme']  			= 'Theme';
+$_['entry_custom_css']  			= 'Custom css';
 
 // Error
 $_['error_permission']			    = 'Warning: You do not have permission to modify Checkout.com Payment Module!';
