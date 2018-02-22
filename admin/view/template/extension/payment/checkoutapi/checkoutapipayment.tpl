@@ -92,10 +92,10 @@
                     <?php } else { ?>
                     <option value="hosted"><?php echo $text_integration_hosted; ?></option>
                     <?php } ?>
-                    <?php if ($checkoutapipayment_integration_type == 'embedded') { ?>
-                    <option value="embedded" selected="selected"><?php echo $text_integration_embedded; ?></option>
+                    <?php if ($checkoutapipayment_integration_type == 'frames') { ?>
+                    <option value="frames" selected="selected"><?php echo $text_integration_frames; ?></option>
                     <?php } else { ?>
-                    <option value="embedded"><?php echo $text_integration_embedded; ?></option>
+                    <option value="frames"><?php echo $text_integration_frames; ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -249,18 +249,18 @@
             </div>
          </fieldset>
 
-          <fieldset>
-            <legend><?php echo $text_embedded_settings; ?></legend>
+        <fieldset>
+            <legend><?php echo $text_frames_settings; ?></legend>
              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-theme-setting"><?php echo $entry_embedded_theme; ?></label>
+                <label class="col-sm-2 control-label" for="input-theme-setting"><?php echo $entry_frames_theme; ?></label>
                 <div class="col-sm-10">
-                    <select name="checkoutapipayment_embedded_theme" id="input-integration" class="form-control">
-                        <?php if ($checkoutapipayment_embedded_theme == 'standard') { ?>
+                    <select name="checkoutapipayment_frames_theme" id="input-integration" class="form-control">
+                        <?php if ($checkoutapipayment_frames_theme == 'standard') { ?>
                         <option value="standard" selected="selected"><?php echo $text_theme_standard; ?></option>
                         <?php } else { ?>
                         <option value="standard"><?php echo $text_theme_standard; ?></option>
                         <?php } ?>
-                        <?php if ($checkoutapipayment_embedded_theme == 'simple') { ?>
+                        <?php if ($checkoutapipayment_frames_theme == 'simple') { ?>
                         <option value="simple" selected="selected"><?php echo $text_theme_simple; ?></option>
                         <?php } else { ?>
                         <option value="simple"><?php echo $text_theme_simple; ?></option>
@@ -268,10 +268,11 @@
                     </select>
                 </div>
             </div>
+
             <div class="form-group">
             <label class="col-sm-2 control-label" for="input-custom-css"><?php echo $entry_custom_css; ?></label>
             <div class="col-sm-10">
-                <input type="text" name="checkoutapipayment_custom_css" value="<?php echo $checkoutapipayment_custom_css; ?>" placeholder="<?php echo $entry_custom_css; ?>" id="input-custom-css" class="form-control" />
+                <textarea class="form-control"  name="checkoutapipayment_custom_css" id="checkoutapipayment_custom_css" ><?php echo $checkoutapipayment_custom_css?></textarea>
             </div>
         </div>
         </fieldset>

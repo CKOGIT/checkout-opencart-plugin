@@ -6,7 +6,9 @@
     document.getElementsByClassName('ckoiframe')[0].appendChild(script);
 </script>
 
-<div class="ckoiframe"></div>
+<div class="ckoiframe" ></div>
+
+<div class="cko-loading" align="center"><img height="100" width="100" align="middle" src='<?php echo $load ?>'></div>
 
 <div class="buttons">
     <div class="pull-right">
@@ -14,29 +16,31 @@
             <form class="widget-container" >
                 <script type="text/javascript">
                     setTimeout(function(){
-                        Checkout.init({
+                        var style = {<?php echo $customCss?>}
+
+                        Frames.init({
                             debug: true,
                             publicKey: '<?php echo $publicKey ?>', 
-                            appMode: 'embedded',
                             theme: '<?php echo $theme ?>',
-                            themeOverride: '<?php echo $customCss ?>',
-                            lightboxActivated: function(){
+                            style: style,
+                            frameActivated: function(){
+                                jQuery('.cko-loading').hide();
                                 document.getElementById('cko-iframe-id').style.position = "relative";
                                 $('.cko-md-overlay').remove();
                                 document.getElementById('button-confirm').style.display='block';
                             },
-                            cardFormValidationChanged: function (event) {
-                                document.getElementById("button-confirm").disabled = !Checkout.isCardFormValid();
+                            cardValidationChanged: function (event) {
+                                document.getElementById("button-confirm").disabled = !Frames.isCardValid();
                             },
                             cardTokenised: function(event) {
                                 if (document.getElementById('cko-card-token').value.length === 0) {
                                     document.getElementById('cko-card-token').value = event.data.cardToken;
                                     document.getElementById('payment-form').submit();
                                 }
-                            }
+                            },
                         });
 
-                    }, 1000);
+                    }, 3000);
                 </script>
             </form>
         </div>
@@ -48,7 +52,7 @@
 <script>
     var submitButton = document.getElementById("button-confirm");
     submitButton.addEventListener("click", function () {
-        if (Checkout.isCardFormValid()) Checkout.submitCardForm();
+        if (Frames.isCardValid()) Frames.submitCard();
     });
 </script>
 

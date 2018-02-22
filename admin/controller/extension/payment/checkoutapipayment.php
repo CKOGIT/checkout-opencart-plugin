@@ -31,7 +31,7 @@ class ControllerExtensionPaymentcheckoutapipayment extends Controller
         $data['text_auth_capture']             = $this->language->get('text_auth_capture');
         $data['text_integration_pci']          = $this->language->get('text_integration_pci');
         $data['text_integration_hosted']       = $this->language->get('text_integration_hosted');
-        $data['text_integration_embedded']     = $this->language->get('text_integration_embedded');
+        $data['text_integration_frames']     = $this->language->get('text_integration_frames');
         $data['text_paymentMode_mix']          = $this->language->get('text_paymentMode_mix');
         $data['text_paymentMode_cards']        = $this->language->get('text_paymentMode_cards');
         $data['text_paymentMode_lp']           = $this->language->get('text_paymentMode_lp');
@@ -41,7 +41,7 @@ class ControllerExtensionPaymentcheckoutapipayment extends Controller
         $data['text_symbol']                   = $this->language->get('text_symbol');
         $data['text_3D_yes']                   = $this->language->get('text_3D_yes');
         $data['text_3D_no']                    = $this->language->get('text_3D_no');
-        $data['text_embedded_settings']        = $this->language->get('text_embedded_settings');
+        $data['text_frames_settings']        = $this->language->get('text_frames_settings');
         $data['text_theme_standard']           = $this->language->get('text_theme_standard');
         $data['text_theme_simple']             = $this->language->get('text_theme_simple');
 
@@ -68,7 +68,7 @@ class ControllerExtensionPaymentcheckoutapipayment extends Controller
         $data['entry_currency_format']         = $this->language->get('entry_currency_format');
         $data['entry_3D_secure']               = $this->language->get('entry_3D_secure');
         $data['entry_title']                   = $this->language->get('entry_title');
-        $data['entry_embedded_theme']          = $this->language->get('entry_embedded_theme');
+        $data['entry_frames_theme']          = $this->language->get('entry_frames_theme');
         $data['entry_custom_css']              = $this->language->get('entry_custom_css');
 
         $data['button_save']                   = $this->language->get('button_save');
@@ -159,10 +159,10 @@ class ControllerExtensionPaymentcheckoutapipayment extends Controller
             $data['checkoutapipayment_integration_hosted'] = $this->config->get('checkoutapipayment_integration_hosted');
         }
 
-        if (isset($this->request->post['checkoutapipayment_integration_embedded'])) {
-            $data['checkoutapipayment_integration_embedded'] = $this->request->post['checkoutapipayment_integration_embedded'];
+        if (isset($this->request->post['checkoutapipayment_integration_frames'])) {
+            $data['checkoutapipayment_integration_frames'] = $this->request->post['checkoutapipayment_integration_frames'];
         } else {
-            $data['checkoutapipayment_integration_embedded'] = $this->config->get('checkoutapipayment_integration_embedded');
+            $data['checkoutapipayment_integration_frames'] = $this->config->get('checkoutapipayment_integration_frames');
         }
 
         if (isset($this->request->post['checkoutapipayment_payment_action'])) {
@@ -247,10 +247,10 @@ class ControllerExtensionPaymentcheckoutapipayment extends Controller
             $data['checkoutapipayment_sort_order'] = $this->config->get('checkoutapipayment_sort_order');
         }
 
-        if (isset($this->request->post['checkoutapipayment_embedded_theme'])) {
-            $data['checkoutapipayment_embedded_theme'] = $this->request->post['checkoutapipayment_embedded_theme'];
+        if (isset($this->request->post['checkoutapipayment_frames_theme'])) {
+            $data['checkoutapipayment_frames_theme'] = $this->request->post['checkoutapipayment_frames_theme'];
         } else {
-            $data['checkoutapipayment_embedded_theme'] = $this->config->get('checkoutapipayment_embedded_theme');
+            $data['checkoutapipayment_frames_theme'] = $this->config->get('checkoutapipayment_frames_theme');
         }
 
         if (isset($this->request->post['checkoutapipayment_custom_css'])) {

@@ -1,5 +1,5 @@
 <?php
-class Controller_Methods_creditcardembedded extends Controller_Methods_Abstract implements Controller_Interface
+class Controller_Methods_creditcardframes extends Controller_Methods_Abstract implements Controller_Interface
 {
     public function getData()
     {
@@ -16,39 +16,29 @@ class Controller_Methods_creditcardembedded extends Controller_Methods_Abstract 
         $paymentMode = $this->config->get('checkoutapipayment_payment_mode');
         $cancelUrl = $this->config->get('config_url').'index.php?route=extension/payment/checkoutapipayment/failPage';
         $redirectUrl = $this->config->get('config_url').'index.php?route=extension/payment/checkoutapipayment/send';
-        $theme = $this->config->get('checkoutapipayment_embedded_theme');
+        $theme = $this->config->get('checkoutapipayment_frames_theme');
+        $url = 'https://cdn.checkout.com/js/frames.js';
 
-        if ($mode == 'live') {
-            $url = 'https://cdn.checkout.com/v2/js/checkout.js';
-        } else {
-            $url = 'https://cdn.checkout.com/v2/sandbox/js/checkout.js';
-        }
-
-        $customCss = 'https://cdn.checkout.com/v2/sandbox/js/css/checkout-2.0.7.css';
-        if(!empty($this->config->get('checkoutapipayment_custom_css'))){
-            $customCss = $this->config->get('checkoutapipayment_custom_css');
-        }
 
         $data = array(
+            'customCss'      => $this->config->get('checkoutapipayment_custom_css'),
             'publicKey'      => $this->config->get('checkoutapipayment_public_key'),
-            'customCss'      => $customCss,
             'theme'          => $theme,
             'url'            => $url,
             'redirectUrl'    => $redirectUrl,
             'button_confirm' => $this->language->get('button_confirm'),
+            'load'           => 'catalog\view\theme\default\image\payment\checkoutapi\load.gif',
         );
 
 
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . 'extension/payment/checkoutapi/creditcardembedded.tpl')) { 
-            $tpl = $this->config->get('config_template') . 'extension/payment/checkoutapi/creditcardembedded.tpl';
+        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . 'extension/payment/checkoutapi/creditcardframes.tpl')) { 
+            $tpl = $this->config->get('config_template') . 'extension/payment/checkoutapi/creditcardframes.tpl';
 
         } else {  
-            $tpl = 'extension/payment/checkoutapi/creditcardembedded.tpl';
+            $tpl = 'extension/payment/checkoutapi/creditcardframes.tpl';
         }
 
-        
 
-        $data['scripts'] = 'https://dl.dropbox.com/s/linsznbejvem1sd/style2.css?dl=0';
         $data['tpl'] = $this->load->view($tpl, $data);
 
 
