@@ -1,6 +1,6 @@
 <?php
 
-define('PLUGIN_VERSION', '2.4.1');
+define('PLUGIN_VERSION', '2.4.2');
 
 abstract class Controller_Methods_Abstract extends Controller
 {   
@@ -143,6 +143,14 @@ abstract class Controller_Methods_Abstract extends Controller
         $config['mode'] = $this->config->get('checkoutapipayment_test_mode');
         $config['timeout'] =  $this->config->get('checkoutapipayment_gateway_timeout');
 
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+
         if($this->config->get('checkoutapipayment_payment_action') =='capture') {
             $config = array_merge($config, $this->_captureConfig());
         }else {
@@ -201,6 +209,7 @@ abstract class Controller_Methods_Abstract extends Controller
             'shippingDetails'    =>  $shippingAddressConfig,
             'billingDetails'     =>  $billingAddressConfig,
             'products'           =>  $products,
+            'customerIp'         =>  $ip,
             'card'               =>  array(),
             'metadata'           => array(
                                         'server'            => $this->config->get('config_url'),
