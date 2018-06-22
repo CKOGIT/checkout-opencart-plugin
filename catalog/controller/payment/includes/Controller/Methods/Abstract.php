@@ -1,4 +1,7 @@
 <?php
+
+define('PLUGIN_VERSION', '1.2.0');
+
 abstract class Controller_Methods_Abstract extends Controller
 {
 
@@ -56,12 +59,54 @@ abstract class Controller_Methods_Abstract extends Controller
         $Api = CheckoutApi_Api::getApi(array('mode'=> $this->config->get('test_mode')));
         $validateRequest = $Api::validateRequest($toValidate,$respondCharge);
 
-
         if( $respondCharge->isValid()) {
 
-            if (preg_match('/^1[0-9]+$/', $respondCharge->getResponseCode())) {
-                $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
+            if($respondCharge->getChargeMode() == 2){
+                if(!empty($respondCharge->getRedirectUrl())){
+                    $json['success'] = $respondCharge->getRedirectUrl();
+                } else {
+                    $Payment_Error = 'Transaction failed : '.$respondCharge->getErrorMessage(). ' with response code : '.$respondCharge->getResponseCode();
 
+                    if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
+                        $this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    }
+                    if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
+                        $this->model_checkout_order->update($this->session->data['order_id'], $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    }
+                    $json['error'] = 'We are sorry, but you transaction could not be processed. Please verify your payment information and try again.'  ;
+                    $this->session->data['fail_transaction'] = true;
+
+                    $redirectUrl = $this->url->link('checkout/checkout', '', 'SSL');
+                    $json['success'] = $this->url->link('checkout/checkout', '', 'SSL');
+
+                }
+
+
+            }elseif($respondCharge->getChargeMode() == 3){
+                $localPayment = $respondCharge->getLocalPayment();
+                $paymentUrl = $localPayment->getPaymentUrl();
+
+                if(!$paymentUrl){
+                    $Payment_Error = 'Transaction failed : '.$respondCharge->getErrorMessage(). ' with response code : '.$respondCharge->getResponseCode();
+
+                    if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
+                        $this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    }
+                    if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
+                        $this->model_checkout_order->update($this->session->data['order_id'], $this->config->get('checkout_failed_order'), $Payment_Error, true);
+                    }
+                    $json['error'] = 'We are sorry, but you transaction could not be processed. Please verify your payment information and try again.'  ;
+                    $this->session->data['fail_transaction'] = true;
+
+                    $redirectUrl = $this->url->link('checkout/checkout', '', 'SSL');
+                    $json['redirect'] = $this->url->link('checkout/checkout', '', 'SSL');
+                } else {
+                    $json['success'] = $paymentUrl;
+                }
+
+
+            } elseif (preg_match('/^1[0-9]+$/', $respondCharge->getResponseCode())) {
+                $Message = 'Your transaction has been  ' .strtolower($respondCharge->getStatus()) .' with transaction id : '.$respondCharge->getId();
 
                 if(!$validateRequest['status']){
                     foreach($validateRequest['message'] as $errormessage){
@@ -69,15 +114,20 @@ abstract class Controller_Methods_Abstract extends Controller
                     }
                 }
 
-
                 if(!isset($this->session->data['fail_transaction']) || $this->session->data['fail_transaction'] == false) {
                     $this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('checkout_successful_order'), $Message, true);
                 }
 
-                if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) {
+                if(isset($this->session->data['fail_transaction']) && $this->session->data['fail_transaction']) { 
                     $this->model_checkout_order->update($this->session->data['order_id'], $this->config->get('checkout_successful_order'), $Message, true);
                     $this->session->data['fail_transaction'] = false;
                 }
+
+                if($this->config->get('save_card') == 'yes'){ 
+                    $this->_saveCard($respondCharge, $this->customer->getId(), $this->request->post['save-card-checkbox']);
+                }
+                
+
 
                 $json['success'] = $this->url->link('checkout/success', '', 'SSL');
 
@@ -92,6 +142,9 @@ abstract class Controller_Methods_Abstract extends Controller
                 }
                 $json['error'] = 'We are sorry, but you transaction could not be processed. Please verify your card information and try again.'  ;
                 $this->session->data['fail_transaction'] = true;
+
+                $redirectUrl = $this->url->link('checkout/checkout', '', 'SSL');
+                $json['redirect'] = $this->url->link('checkout/checkout', '', 'SSL');
             }
 
         } else  {
@@ -168,6 +221,49 @@ abstract class Controller_Methods_Abstract extends Controller
         ));
 
         return $config;
+    }
+
+    private function _saveCard($respondCharge,$customerId,$saveCardCheck)
+    {
+
+        if (empty($respondCharge)) {
+            return false;
+        }
+
+        if($saveCardCheck != 1){
+            return false;
+        }
+
+        $last4      = $respondCharge->getCard()->getLast4();
+        $cardId     = $respondCharge->getCard()->getId();
+        $cardType   = $respondCharge->getCard()->getPaymentMethod();
+        $ckoCustomerId = $respondCharge->getCard()->getCustomerId();
+
+        if (empty($last4) || empty($cardId) || empty($cardType) || empty($ckoCustomerId)) {
+            return false;
+        }
+
+        if ($this->_cardExist($customerId, $cardId, $cardType)) {
+           return false;
+        }
+
+
+        $this->db->query("INSERT INTO " . DB_PREFIX . "checkout_customer_cards SET customer_id = '" . (int)$customerId . "', card_id = '" . $cardId . "', card_number = '" . $last4 . "', card_type = '" . $cardType . "', card_enabled = '" . $saveCardCheck. "', cko_customer_id = '" . $ckoCustomerId. "'");
+
+        return true;
+    }
+
+    private function _cardExist($customerId,$cardId,$cardType){
+
+        $sql = "SELECT * FROM ".DB_PREFIX."checkout_customer_cards WHERE customer_id = '".$customerId."' AND card_type = '".$cardType."' AND card_id = '".$cardId."'";
+
+        $query = $this->db->query($sql);
+
+        if($query->rows){
+            return true;
+        } 
+
+        return false;
     }
 
     protected function _captureConfig()

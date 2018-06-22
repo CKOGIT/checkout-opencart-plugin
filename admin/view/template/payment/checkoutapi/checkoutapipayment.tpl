@@ -20,30 +20,31 @@
         <?php
         } ?>
         <div class="box">
-            <div class="heading">
-                <h1><img src="view/image/payment.png" alt="" /> <?php echo $heading_title; ?></h1>
-                <div class="buttons"><a onclick="$('#form').submit();" class="button"><?php echo $button_save; ?></a>
-                    <a href="<?php echo $cancel; ?>" class="button"><?php echo $button_cancel; ?></a></div>
-            </div>
+
 
             <div class="checkoutapi-wrapper">
                 <a href="http://dev.checkout.com/" class="checkoutapi-logo" target="_blank">
-                    <img src="../admin/view/image/payment/checkoutapi/checkout-logo@2x.png" alt="Checkout.com" border="0" />
+                    <img src="https://www.checkout.com/static/img/checkout-logo/logo.svg" alt="Checkout.com" border="0" style="width: 50%;padding-top:10px;" />
                 </a>
 
                 <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form">
-                    <p class="checkoutapi-intro">
-                        <ul id="checkoutDevelops" class="checkoutDevelops">
-                            <li>Checkout develops and operates our own payment gateway technology. No outsourcing, less risk</li>
-                            <li>With PCI-Level 1 certification, we ensure the highest level of protection for merchants, consumers and data</li>
-                            <li>Checkout technology supports many of the services we offer, including hosted payment pages, fraud <br> management systems, etc, helping you connect securely with your consumers</li>
-                        </ul>
-                    </p>
-
                     <div class="setting">
                         <h3 class="setting-header">Setting for Checkout.com Gateway 3.0</h3>
                             <div class="field">
                                 <table class="form">
+                                    <tr>
+                                        <td><?php echo $entry_status; ?></td>
+                                        <td><select name="checkoutapipayment_status">
+                                                <?php if ($checkoutapipayment_status) { ?>
+                                                <option value="1" selected="selected"><?php echo $text_status_on; ?></option>
+                                                <option value="0"><?php echo $text_status_off; ?></option>
+                                                <?php } else { ?>
+                                                <option value="1"><?php echo $text_status_on; ?></option>
+                                                <option value="0" selected="selected"><?php echo $text_status_off; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <td><?php echo $entry_test_mode; ?></td>
                                         <td><select name="test_mode">
@@ -77,33 +78,17 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><?php echo $entry_localpayment_enable; ?></td>
-                                        <td><select name="localpayment_enable">
-                                                <?php if ($localpayment_enable == 'yes') { ?>
-                                                <option value="yes" selected="selected"><?php echo $text_lp_yes; ?></option>
+                                        <td><?php echo $entry_integration_type; ?></td>
+                                        <td><select name="integration_type">
+                                                <?php if ($integration_type == 'checkoutjs') { ?>
+                                                <option value="checkoutjs" selected="selected"><?php echo $text_checkout_js; ?></option>
                                                 <?php } else { ?>
-                                                <option value="yes"><?php echo $text_lp_yes; ?></option>
+                                                <option value="checkoutjs"><?php echo $text_checkout_js; ?></option>
                                                 <?php } ?>
-                                                <?php if ($localpayment_enable == 'no') { ?>
-                                                <option value="no" selected="selected"><?php echo $text_lp_no; ?></option>
+                                                <?php if ($integration_type == 'frames') { ?>
+                                                <option value="frames" selected="selected"><?php echo $text_frames_js; ?></option>
                                                 <?php } else { ?>
-                                                <option value="no"><?php echo $text_lp_no; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><?php echo $entry_pci_enable; ?></td>
-                                        <td><select name="pci_enable">
-                                                <?php if ($pci_enable == 'yes') { ?>
-                                                <option value="yes" selected="selected"><?php echo $text_pci_yes; ?></option>
-                                                <?php } else { ?>
-                                                <option value="yes"><?php echo $text_pci_yes; ?></option>
-                                                <?php } ?>
-                                                <?php if ($pci_enable == 'no') { ?>
-                                                <option value="no" selected="selected"><?php echo $text_pci_no; ?></option>
-                                                <?php } else { ?>
-                                                <option value="no"><?php echo $text_pci_no; ?></option>
+                                                <option value="frames"><?php echo $text_frames_js; ?></option>
                                                 <?php } ?>
                                             </select>
                                         </td>
@@ -120,6 +105,38 @@
                                                 <option value="capture" selected="selected"><?php echo $text_auth_capture; ?></option>
                                                 <?php } else { ?>
                                                 <option value="capture"><?php echo $text_auth_capture; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><?php echo $entry_is_3d; ?></td>
+                                        <td><select name="is_3d">
+                                                <?php if ($is_3d == 1) { ?>
+                                                <option value=1 selected="selected"><?php echo $text_is_3d_no; ?></option>
+                                                <?php } else { ?>
+                                                <option value=1><?php echo $text_is_3d_no; ?></option>
+                                                <?php } ?>
+                                                <?php if ($is_3d == 2) { ?>
+                                                <option value=2 selected="selected"><?php echo $text_is_3d_yes; ?></option>
+                                                <?php } else { ?>
+                                                <option value=2><?php echo $text_is_3d_yes; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><?php echo $entry_save_card; ?></td>
+                                        <td><select name="save_card">
+                                                <?php if ($save_card == 'no') { ?>
+                                                <option value='no' selected="selected"><?php echo $text_save_card_no; ?></option>
+                                                <?php } else { ?>
+                                                <option value='no'><?php echo $text_save_card_no; ?></option>
+                                                <?php } ?>
+                                                <?php if ($save_card == 'yes') { ?>
+                                                <option value='yes' selected="selected"><?php echo $text_save_card_yes; ?></option>
+                                                <?php } else { ?>
+                                                <option value='yes'><?php echo $text_save_card_yes; ?></option>
                                                 <?php } ?>
                                             </select>
                                         </td>
@@ -166,19 +183,7 @@
                                                 <?php } ?>
                                             </select></td>
                                     </tr>
-                                    <tr>
-                                        <td><?php echo $entry_status; ?></td>
-                                        <td><select name="checkoutapipayment_status">
-                                                <?php if ($checkoutapipayment_status) { ?>
-                                                <option value="1" selected="selected"><?php echo $text_status_on; ?></option>
-                                                <option value="0"><?php echo $text_status_off; ?></option>
-                                                <?php } else { ?>
-                                                <option value="1"><?php echo $text_status_on; ?></option>
-                                                <option value="0" selected="selected"><?php echo $text_status_off; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </td>
-                                    </tr>
+                                    
                                     <tr>
                                         <td><?php echo $entry_sort_order; ?></td>
                                         <td><input type="text" name="checkoutapipayment_sort_order" value="<?php echo $checkoutapipayment_sort_order; ?>" size="1" /></td>
@@ -226,7 +231,51 @@
                                 </tr>
                             </table>
                         </div>
+
+                        <h3 class="setting-header">Advance option for Frames Js</h3>
+                        <table class="form">
+                            <tr>
+                                <td><?php echo $entry_frames_theme;?></td>
+                                <td><select name="frames_theme">
+                                        <?php if ($frames_theme == 'standard') { ?>
+                                        <option value="standard" selected="selected"><?php echo $text_theme_standard; ?></option>
+                                        <?php } else { ?>
+                                        <option value="standard"><?php echo $text_theme_standard; ?></option>
+                                        <?php } ?>
+                                        <?php if ($frames_theme == 'simple') { ?>
+                                        <option value="simple" selected="selected"><?php echo $text_theme_simple; ?></option>
+                                        <?php } else { ?>
+                                        <option value="simple"><?php echo $text_theme_simple; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><?php echo $entry_localpayment_enable; ?></td>
+                                <td><select name="localpayment_enable">
+                                        <?php if ($localpayment_enable == 'no') { ?>
+                                        <option value="no" selected="selected"><?php echo $text_lp_no; ?></option>
+                                        <?php } else { ?>
+                                        <option value="no"><?php echo $text_lp_no; ?></option>
+                                        <?php } ?>
+                                        <?php if ($localpayment_enable == 'yes') { ?>
+                                        <option value="yes" selected="selected"><?php echo $text_lp_yes; ?></option>
+                                        <?php } else { ?>
+                                        <option value="yes"><?php echo $text_lp_yes; ?></option>
+                                        <?php } ?>
+                                        
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+
                     </form>
+                </div>
+            </div>
+            <div class="heading">
+                <div class="buttons">
+                    <a onclick="$('#form').submit();" class="button"><?php echo $button_save; ?></a>
+                    <a href="<?php echo $cancel; ?>" class="button"><?php echo $button_cancel; ?></a>
                 </div>
             </div>
         </div>

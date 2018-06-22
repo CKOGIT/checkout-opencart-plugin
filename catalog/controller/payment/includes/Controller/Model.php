@@ -9,12 +9,16 @@ abstract class Controller_Model extends Controller
 
         parent::__construct($registry);
         $this->language->load('payment/checkoutapipayment');
-        $methodType = $this->config->get('pci_enable');
+         $methodType = $this->config->get('integration_type');
 
         switch ($methodType)
         {
-            case 'yes':
-                $this->setMethodInstance(new Controller_Methods_creditcardpci($registry));
+            case 'checkoutjs':
+                $this->setMethodInstance(new Controller_Methods_creditcard($registry));
+                break;
+
+            case 'frames':
+                $this->setMethodInstance(new Controller_Methods_creditcardframes($registry));
                 break;
 
             default:
@@ -26,8 +30,6 @@ abstract class Controller_Model extends Controller
 
     protected function index()
     {
-
-
         $this->getMethodInstance()->getIndex();
         $data = $this->getMethodInstance()->data;
 

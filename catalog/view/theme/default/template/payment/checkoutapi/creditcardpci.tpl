@@ -88,14 +88,12 @@
         }
 
         if(isValid) {
-
-
-                                $.ajax({
-                                    url: 'index.php?route=payment/checkoutapipayment/send',
-                                    type: 'post',
-                                    data: $('#payment :input'),
-                                    dataType: 'json',
-                                        beforeSend: function() {
+                $.ajax({
+                    url: 'index.php?route=payment/checkoutapipayment/send',
+                    type: 'post',
+                    data: $('#payment :input'),
+                    dataType: 'json',
+                        beforeSend: function() {
                     $('#button-confirm').attr('disabled', true);
                     $('#payment').before('<div class="attention"><img src="catalog/view/theme/default/image/loading.gif" alt="" /> <?php echo $text_wait; ?></div>');
                 },

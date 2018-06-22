@@ -2,7 +2,7 @@
 // Heading
 $_['heading_title']		  = 'Checkout.com (Gateway 3.0)';
 
-$_['text_checkoutapipayment'] = '<a onclick="window.open(\'https://www.checkout.com\');"><img src="https://www.checkout.com/wp-content/uploads/2014/08/logo.png" alt="www.checkout.com" title="www.checkout.com" style="border: 1px solid #EEEEEE;height:22px;width:92px;" /></a>';
+$_['text_checkoutapipayment'] = '<a onclick="window.open(\'https://www.checkout.com\');"><img src="https://www.checkout.com/static/img/checkout-logo/logo.svg" alt="www.checkout.com" title="www.checkout.com" style=" #EEEEEE;height:28px;width:100px;" /></a>';
 $_['text_checkoutapipayment_join'] = '<a onclick="window.open(\'https://www.checkout.com\');" title="Click here to join Checkout.com">Click here to create your Checkout.com account</a>';
 
 // Text
@@ -23,12 +23,22 @@ $_['text_lp_no']          = 'No';
 $_['text_gateway_timeout']= '0';
 $_['text_symbol']         = 'Symbol';
 $_['text_code']         = 'Code';
+$_['text_checkout_js']	  = 'Checkout Js';
+$_['text_frames_js']	  = 'Frames Js';
+$_['text_theme_standard'] = 'Standard';
+$_['text_theme_simple'] = 'Simple';
+$_['text_is_3d_no'] = 'No';
+$_['text_is_3d_yes'] = 'Yes';
+$_['text_save_card_no'] = 'No';
+$_['text_save_card_yes'] = 'Yes';
+
+
 
 // Entry
 $_['entry_test_mode']               = 'Production Mode*';
 $_['entry_secret_key']              = 'Secret Key*';
 $_['entry_public_key']              = 'Public Key*';
-$_['entry_localpayment_enable']     = 'Local Payment Enable';
+$_['entry_localpayment_enable']     = 'Include Alternative payment';
 $_['entry_payment_url']             = 'Payment URL';
 $_['entry_pci_enable']              = 'PCI enable';
 $_['entry_payment_action']          = 'Payment Action*';
@@ -46,6 +56,10 @@ $_['entry_theme_color']             = 'Theme Color';
 $_['entry_button_color']            = 'Button Color';
 $_['entry_icon_color']              = 'Icon Color';
 $_['entry_currency_format']         = 'Widget currency format';
+$_['entry_integration_type']		= 'Integration Type';
+$_['entry_frames_theme']			= 'Themes';
+$_['entry_is_3d']					= 'Enable 3D';
+$_['entry_save_card']				= 'Save card for future payment';
 
 // Error
 $_['error_permission']			    = 'Warning: You do not have permission to modify Checkout.com Payment Module!';
