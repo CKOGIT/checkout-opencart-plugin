@@ -3,13 +3,25 @@ class ControllerPaymentcheckoutapipayment extends Controller
 {
     private $error = array();
 
+    public function install() {
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "checkout_customer_cards` (
+            `entity_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+            `customer_id` INT(11) NOT NULL COMMENT 'Customer ID from OPC',
+            `card_id` VARCHAR(100) NOT NULL COMMENT 'Card ID from Checkout API',
+            `card_number` VARCHAR(4) NOT NULL COMMENT 'Short Customer Credit Card Number',
+            `card_type` VARCHAR(20) NOT NULL COMMENT 'Credit Card Type',
+            `card_enabled` BIT NOT NULL DEFAULT 1 COMMENT 'Credit Card Enabled',
+            `cko_customer_id` VARCHAR(100) NOT NULL COMMENT 'Customer ID from Checkout API',
+          PRIMARY KEY (`entity_id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=0;");
+    }
+
     public function index()
     {
+        $this->install();
         $this->language->load('payment/checkoutapipayment');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->load->model('setting/setting');
-
-
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
             $this->model_setting_setting->editSetting('checkoutapipayment', $this->request->post);
@@ -39,6 +51,14 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $this->data['text_gateway_timeout']          = $this->language->get('text_gateway_timeout');
         $this->data['text_symbol']                   = $this->language->get('text_symbol');
         $this->data['text_code']                     = $this->language->get('text_code');
+        $this->data['text_checkout_js']              = $this->language->get('text_checkout_js');
+        $this->data['text_frames_js']                = $this->language->get('text_frames_js');
+        $this->data['text_theme_standard']           = $this->language->get('text_theme_standard');
+        $this->data['text_theme_simple']             = $this->language->get('text_theme_simple');
+        $this->data['text_is_3d_no']                 = $this->language->get('text_is_3d_no');
+        $this->data['text_is_3d_yes']                = $this->language->get('text_is_3d_yes');
+        $this->data['text_save_card_no']             = $this->language->get('text_save_card_no');
+        $this->data['text_save_card_yes']            = $this->language->get('text_save_card_yes');
 
         $this->data['entry_test_mode']               = $this->language->get('entry_test_mode');
         $this->data['entry_secret_key']              = $this->language->get('entry_secret_key');
@@ -61,6 +81,10 @@ class ControllerPaymentcheckoutapipayment extends Controller
         $this->data['entry_button_color']            = $this->language->get('entry_button_color');
         $this->data['entry_icon_color']              = $this->language->get('entry_icon_color');
         $this->data['entry_currency_format']         = $this->language->get('entry_currency_format');
+        $this->data['entry_integration_type']        = $this->language->get('entry_integration_type');
+        $this->data['entry_frames_theme']            = $this->language->get('entry_frames_theme');
+        $this->data['entry_is_3d']                   = $this->language->get('entry_is_3d');
+        $this->data['entry_save_card']               = $this->language->get('entry_save_card');
 
         $this->data['button_save']                   = $this->language->get('button_save');
         $this->data['button_cancel']                 = $this->language->get('button_cancel');
@@ -130,10 +154,10 @@ class ControllerPaymentcheckoutapipayment extends Controller
             $this->data['localpayment_enable'] = $this->config->get('localpayment_enable');
         }
 
-        if (isset($this->request->post['pci_enable'])) {
-            $this->data['pci_enable'] = $this->request->post['pci_enable'];
+        if (isset($this->request->post['integration_type'])) {
+            $this->data['integration_type'] = $this->request->post['integration_type'];
         } else {
-            $this->data['pci_enable'] = $this->config->get('pci_enable');
+            $this->data['integration_type'] = $this->config->get('integration_type');
         }
 
         if (isset($this->request->post['payment_action'])) {
@@ -184,6 +208,23 @@ class ControllerPaymentcheckoutapipayment extends Controller
             $this->data['currency_format'] = $this->config->get('currency_format');
         }
 
+        if (isset($this->request->post['frames_theme'])) {
+            $this->data['frames_theme'] = $this->request->post['frames_theme'];
+        } else {
+            $this->data['frames_theme'] = $this->config->get('frames_theme');
+        }
+
+        if (isset($this->request->post['is_3d'])) {
+            $this->data['is_3d'] = $this->request->post['is_3d'];
+        } else {
+            $this->data['is_3d'] = $this->config->get('is_3d');
+        }
+
+        if (isset($this->request->post['save_card'])) {
+            $this->data['save_card'] = $this->request->post['save_card'];
+        } else {
+            $this->data['save_card'] = $this->config->get('save_card');
+        }
 
         if (isset($this->request->post['checkout_successful_order'])) {
             $this->data['checkout_successful_order'] = $this->request->post['checkout_successful_order'];

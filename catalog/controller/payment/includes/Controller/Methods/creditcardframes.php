@@ -1,5 +1,5 @@
 <?php
-class Controller_Methods_creditcard extends Controller_Methods_Abstract implements Controller_Interface
+class Controller_Methods_creditcardframes extends Controller_Methods_Abstract implements Controller_Interface
 {
 
     public function getData()
@@ -25,10 +25,21 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         }
 
         if($localPayment == 'yes'){
-            $paymentMode = 'mixed';
-        } else {
-            $paymentMode = 'card';
-        }
+            $paymentToken = $this->generatePaymentToken();
+            $result = $this->getLocalPaymentProvider($paymentToken['token']);
+
+            $this->session->data['localPayment'] = $result;
+
+            foreach ($result as $i=>$item) {
+                $lpName = strtolower(preg_replace('/\s+/', '', $item['name']));
+                $this->session->data['lpName'] = $lpName;
+                
+                if($lpName == 'ideal'){
+                    $localPaymentInformation = $this->getLocalPaymentInformation($item['id']);
+                    $this->session->data['idealPaymentInfo'] = $localPaymentInformation;
+                }  
+            } 
+        } 
 
         if($this->config->get('save_card') == 'yes'){
 
@@ -58,7 +69,6 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'country'            =>  $order_info['payment_iso_code_2'],
             'city'               =>  $order_info['payment_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
-
         );
 
         $toReturn = array(
@@ -70,8 +80,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'amount'            =>  $amount,
             'title'             =>  $this->config->get('config_name'),
             'publicKey'         =>  $this->config->get('public_key'),
-            'url'               =>  $url,
-            'paymentMode'       =>  $paymentMode,
+            'url'               =>  'https://cdn.checkout.com/js/frames.js',
             'email'             =>  $order_info['email'],
             'name'              =>  $order_info['firstname']. ' '.$order_info['lastname'],
             'paymentToken'      =>  $paymentTokenArray['token'],
@@ -92,6 +101,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             'country'           =>  $order_info['payment_iso_code_2'],
             'city'              =>  $order_info['payment_city'],
             'phone'             =>  $order_info['telephone'],
+            'alternativePayment'=>  $this->config->get('localpayment_enable'),
             'save_card'         =>  $this->config->get('save_card')
         );
 
@@ -100,10 +110,10 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             $this->data[$key] = $val;
         }
 
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/checkoutapi/creditcard.tpl')) {
-            $this->template = $this->config->get('config_template') . '/template/payment/checkoutapi/creditcard.tpl';
+        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/checkoutapi/creditcardframes.tpl')) {
+            $this->template = $this->config->get('config_template') . '/template/payment/checkoutapi/creditcardframes.tpl';
         } else {
-            $this->template = 'default/template/payment/checkoutapi/creditcard.tpl';
+            $this->template = 'default/template/payment/checkoutapi/creditcardframes.tpl';
         }
  
         $toReturn['tpl'] =   $this->render();
@@ -112,14 +122,16 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
     protected function _createCharge($order_info)
     { 
+        if($this->request->post['cko-payment'] == 'alternative_payment' && $this->config->get('localpayment_enable') == 'yes'){
+            return $this->createLpCharge($this->request->post, $order_info);
+        }
+
         $config = array();
         $scretKey = $this->config->get('secret_key');
         $config['authorization'] = $scretKey  ;
         $config['timeout'] =  $this->config->get('gateway_timeout');
-        $config['paymentToken']  = $this->request->post['cko_cc_paymenToken'];
 
         $config = $this->getConfigData();
-
         if($this->request->post['cko-payment'] == 'new_card' && !empty($this->request->post['cko-card-token'])){
             $config['postedParam']['cardToken'] = $this->request->post['cko-card-token'];
 
@@ -202,7 +214,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
                 'opencart_version'  => VERSION,
                 'plugin_version'    => PLUGIN_VERSION,
                 'lib_version'       => CheckoutApi_Client_Constant::LIB_VERSION,
-                'integration_type'  => 'CheckoutJs',
+                'integration_type'  => 'FramesJs',
                 'time'              => date('Y-m-d H:i:s')
             ),
 
@@ -232,6 +244,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
             $config = array_merge($config,$this->_authorizeConfig());
         }
 
+
         $products = array();
         foreach ($productsLoad as $item ) {
 
@@ -254,13 +267,14 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         );
 
         $shippingAddressConfig = array(
+            'recipientName'      =>  $order_info['payment_firstname']. ' ' .$order_info['payment_lastname'],
             'addressLine1'       =>  $order_info['shipping_address_1'],
             'addressLine2'       =>  $order_info['shipping_address_2'],
             'postcode'           =>  $order_info['shipping_postcode'],
             'country'            =>  $order_info['shipping_iso_code_2'],
             'city'               =>  $order_info['shipping_city'],
             'phone'              =>  array('number' => $order_info['telephone']),
-            'state'              =>  $order_info['shipping_zone'],          
+            'state'              =>  $order_info['shipping_zone'],
 
         );
 
@@ -300,6 +314,7 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
 
             $paymentTokenArray['token'] = $paymentTokenCharge->getId();
             $paymentTokenArray['success'] = true;
+            $paymentTokenArray['customerEmail']    = $config['postedParam']['email'];
 
         }else {
 
@@ -311,6 +326,127 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
         return $paymentTokenArray;
     }
 
+    public function getLocalPaymentProvider($paymentToken){
+        $Api = CheckoutApi_Api::getApi(array('mode' => $this->config->get('test_mode')));
+        $paymentToken = array('paymentToken' => $paymentToken, 'authorization' => $this->config->get('public_key'));
+        $result = $Api->getLocalPaymentProviderByPayTok($paymentToken);
+        $data = $result->getData();
+
+        foreach ((array)$data as &$value) { 
+            return $value;
+        }
+    }
+
+    /**
+    *
+    * Get Bank info for Ideal
+    *
+    **/
+    public function getLocalPaymentInformation($lpId){
+        $secretKey = $this->config->get('secret_key');
+        $mode = $this->config->get('test_mode');
+        $url = "https://sandbox.checkout.com/api2/v2/lookups/localpayments/{$lpId}/tags/issuerid";
+        
+        if($mode == 'live'){
+            $url = "https://api2.checkout.com/v2/lookups/localpayments/{$lpId}/tags/issuerid";
+        }
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_SSL_VERIFYPEER=>  false,
+            CURLOPT_HTTPHEADER => array(
+              "authorization: ".$secretKey,
+              "cache-control: no-cache",
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+          echo "cURL Error #:" . $err;
+          WC_Checkout_Non_Pci::log("cURL Error #:" . $err);
+        } else {
+
+            $test = json_decode($response);
+
+            foreach ((array)$test as &$value) { 
+                foreach ($value as $i=>$item){
+                    foreach ($item as  $is=>$items) {
+                       
+                        return $item->values;
+                       
+                    }
+                }
+            }
+        }
+    }
+
+    public function createLpCharge($data, $order_info){ 
+        //$customer = new Customer((int) $cart->id_customer);
+        $paymentToken = $this->generatePaymentToken();
+        $secretKey = $this->config->get('secret_key');
+        $localpayment = $this->getLocalPaymentProvider($paymentToken['token']);
+
+        foreach ($localpayment as $i=>$item) {
+           $lpName = strtolower(preg_replace('/\s+/', '', $item['name']));
+           if($lpName == strtolower($_POST['cko-lp-lpName'])){
+                $lppId = $item['id'];
+           }
+        }
+
+        $config = array();
+        $config['authorization']    = $secretKey;
+        $config['postedParam']['email'] = $paymentToken['customerEmail'];
+        $config['postedParam']['paymentToken'] = $paymentToken['token'];
+
+        if($data['cko-lp-lpName'] == 'ideal'){
+            $config['postedParam']['localPayment'] = array(
+                                        "lppId" => $lppId,
+                                        "userData" => array(
+                                                        "issuerId" => $data['cko-lp-issuerId']
+                                        )
+            );
+        } elseif($data['cko-lp-lpName'] == 'boleto'){
+            $config['postedParam']['localPayment'] = array(
+                                        "lppId" => $lppId,
+                                        "userData" => array(
+                                                        "birthDate" => $data['boletoDate'],
+                                                        "cpf" => $data['cpf'],
+                                                        "customerName" => $data['custName']
+                                        )
+            );
+        } elseif($data['cko-lp-lpName'] == 'qiwi'){
+
+            $config['postedParam']['localPayment'] = array(
+                                        "lppId" => $lppId,
+                                        "userData" => array(
+                                                        "walletId" => $data['walletId'],
+                                        )
+            );
+        } else {
+            $config['postedParam']['localPayment'] = array(
+                                        "lppId" => $lppId,
+            );
+        }
+
+
+        $Api = CheckoutApi_Api::getApi(array('mode' => $this->config->get('test_mode')));
+        $result = $Api->createLocalPaymentCharge($config);
+
+        return $result; 
+    }
+
     public function getCustomerCardList($customerId) {
         $sql = "SELECT * FROM ".DB_PREFIX."checkout_customer_cards WHERE customer_id = '".$customerId."' AND card_enabled = '1'";
 
@@ -320,10 +456,13 @@ class Controller_Methods_creditcard extends Controller_Methods_Abstract implemen
     }
 
     public function getCardId($entityId){
+        
         $sql = 'SELECT card_id FROM '.DB_PREFIX."checkout_customer_cards WHERE entity_id = '".$entityId."'";
 
         $query = $this->db->query($sql);
 
         return $query->rows;
     }
+
+
 }

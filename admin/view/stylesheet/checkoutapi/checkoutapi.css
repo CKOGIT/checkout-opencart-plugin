@@ -1,4 +1,4 @@
-.checkoutapi-wrapper { background-color: #042454 }
+.checkoutapi-wrapper { background-color: #ffffff }
 .checkoutapi-wrapper { color: #fff}
 
 .checkoutDevelops {  width:45% ; margin-right: 5%}
@@ -10,8 +10,18 @@ input.input-txt ,select.input-txt {
     border-style: solid;
     border-width: 1px;
     font: 12px arial,helvetica,sans-serif;
-    width:300px
+    width:100%
 }
+
+input[type='text']{
+    width:40%
+}
+
+select {
+    padding: 1px;
+    width: 40%;
+}
+
 select.input-txt { width: 310px}
 .setting .fields-set,.card-type-list { list-style: none;}
 .setting .field { display: block; padding: 5px 0; clear: both}
