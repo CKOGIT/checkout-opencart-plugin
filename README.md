@@ -1,18 +1,67 @@
-Installation
-============
 
-See the [installation guide](https://github.com/CKOTech/checkout-opencart-plugin/wiki/Installation) on our [Wiki](https://github.com/CKOTech/checkout-opencart-plugin/wiki).
+[![N|Solid](https://cdn.checkout.com/img/checkout-logo-online-payments.jpg)](https://checkout.com/)
+
+# OpenCart Extension
+
+[Checkout.com](https://www.checkout.com "Checkout.com") is a software platform that has integrated 100% of the value chain to create payment infrastructures that truly make a difference.
+
+This extension allows shop owners to process online payments (card / alternative payments) using:
+  - **Frames.js** - Payment form embedded within your website
+  - **Checkout.js** - Customisable payment widget 
+  - **Checkout.js Hosted** - Redirection to a customisable page on Checkout.com's servers
+  - **Alternative payments** - Shoppers can pay using local payment options (Sofort, iDEAL, Boleto ... etc.)
+
+# Installation
+You can find a full installation guide [here](https://github.com/checkout/checkout-opencart-plugin/wiki/Installation)
+
+# Initial Setup
+If you do not have an account yet, simply go to [checkout.com](https://checkout.com/) and hit the "Get Test Account" button.
+
+# Keys
+There are 3 keys that you need to configure in the NON-PCI extension, while for the PCI version you just need 2:
+- **Secret Key**
+- **Public Key** (not needed for PCI extension)
+- **Private Shared Key**
+
+> The Private Shared Key is generated when you [configure the Webhook URL](https://docs.checkout.com/docs/business-level-administration#section-manage-webhook-url) in the Checkout HUB.
+
+# URLs
+In order to successfully complete 3D Secure transactions, and to keep OpenCart order statuses in sync you need to configure the following URLs in your Checkout HUB as follows:
+
+For Opencart version 2.0-2.2:
+
+| Type | URL Example | Description |
+| ------ | ------ | ------ |
+| Redirections **Success**| _example.com_**/index.php?route=payment/checkoutapipayment/successPage** | Redirect after 3D Secure |
+| Redirections &nbsp;&nbsp;&nbsp;&nbsp; **Fail**| _example.com_**/index.php?route=payment/checkoutapipayment/failPage** | Redirect after 3D Secure |
+| Webhook | _example.com_**/index.php?route=payment/checkoutapipayment/webhook** | Sync OpenCart |
+
+> You can see a guide on how to set the URLs in the HUB [here](https://docs.checkout.com/docs/business-level-administration#section-manage-channel-urls) ; You can find test card details [here](https://docs.checkout.com/docs/testing#section-credit-cards)
+
+For Opencart version 2.3.x:
+
+| Type | URL Example | Description |
+| ------ | ------ | ------ |
+| Redirections **Success**| _example.com_**/index.php?route=extension/payment/checkoutapipayment/successPage** | Redirect after 3D Secure |
+| Redirections &nbsp;&nbsp;&nbsp;&nbsp; **Fail**| _example.com_**/index.php?route=extension/payment/checkoutapipayment/failPage** | Redirect after 3D Secure |
+| Webhook | _example.com_**/index.php?route=extension/payment/checkoutapipayment/webhook** | Sync OpenCart |
+
+> You can see a guide on how to set the URLs in the HUB [here](https://docs.checkout.com/docs/business-level-administration#section-manage-channel-urls) ; You can find test card details [here](https://docs.checkout.com/docs/testing#section-credit-cards)
+
+# Going LIVE
+
+Upon receiving your live credentials from your account manager, here are the required steps to start processing live transactions:
+
+- In the plugin settings, place your **live** keys
+- Switch the _Endpoint URL mode_ to **live**.
+- Make sure you have configured the Redirection and Webhook URLs correctly in your **live** Checkout.com HUB
 
 
-Opencart version 2.0-2.2:
+# Reference 
 
-Webhook Url : example.com/index.php?route=payment/checkoutapipayment/webhook
-Success Url : example.com/index.php?route=payment/checkoutapipayment/successPage
-Fail Url : example.com/index.php?route=payment/checkoutapipayment/failPage
+You can find our complete Documentation [here](http://docs.checkout.com/).  
+If you would like to get an account manager, please contact us at sales@checkout.com  
+For help during the integration process you can contact us at integration@checkout.com  
+For support, you can contact us at support@checkout.com
 
-
-Opencart version 2.3.x.x:
-
-Webhook Url : example.com/index.php?route=extension/payment/checkoutapipayment/webhook
-Success Url : example.com/index.php?route=extension/payment/checkoutapipayment/successPage
-Fail Url : example.com/index.php?route=extension/payment/checkoutapipayment/failPage
+_Checkout.com is authorised and regulated as a Payment institution by the UK Financial Conduct Authority._
