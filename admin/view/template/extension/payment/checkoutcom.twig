@@ -1,0 +1,255 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-payment" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-payment" class="form-horizontal">
+          <div class="tab-content">
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+              <div class="col-sm-10">
+                <select name="payment_checkoutcom_status" id="input-status" class="form-control">
+                  {% if payment_checkoutcom_status == '1' %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                  {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                  {% endif %}
+                  {% if payment_checkoutcom_status == '0' %}
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                  {% else %}
+                    <option value="0">{{ text_disabled }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="sort-order">{{ entry_sort_order }}</label>
+              <div class="col-sm-10">
+                <input type="text" name="payment_checkoutcom_sort_order" value="{{ payment_checkoutcom_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control"/>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="endpoint-mode">{{ entry_test_mode }}</label>
+              <div class="col-sm-10">
+                <select name="payment_checkoutcom_test_mode" id="endpoint-mode" class="form-control">
+                   {% if payment_checkoutcom_test_mode == 'sandbox' %}
+                    <option value="sandbox" selected="selected">{{ text_mode_sandbox }}</option>
+                  {% else %}
+                    <option value="sandbox">{{ text_mode_sandbox }}</option>
+                  {% endif %}
+                  {% if payment_checkoutcom_test_mode == 'live' %}
+                    <option value="live" selected="selected">{{ text_mode_live }}</option>
+                  {% else %}
+                    <option value="live">{{ text_mode_live }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="secret-key"><span data-toggle="tooltip" title="{{ entry_secret_key }}">{{ entry_secret_key }}</span></label>
+              <div class="col-sm-10">
+                <input type="text" name="payment_checkoutcom_secret_key" value="{{ payment_checkoutcom_secret_key }}" placeholder="{{ entry_secret_key }}" id="entry-secret-key" class="form-control"/>
+                {% if error_secret_key %}
+                <div class="text-danger">{{ error_app_id }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="public-key"><span data-toggle="tooltip" title="{{ entry_public_key }}">{{ entry_public_key }}</span></label>
+              <div class="col-sm-10">
+                <input type="text" name="payment_checkoutcom_public_key" value="{{ payment_checkoutcom_public_key }}" placeholder="{{ entry_public_key }}" id="public-key" class="form-control"/>
+                {% if error_public_key %}
+                <div class="text-danger">{{ error_app_id }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="integration-type">{{ entry_integration_type }}</label>
+              <div class="col-sm-10">
+                <select name="payment_checkoutcom_integration_type" id="integration-type" class="form-control">
+                  {#{% if payment_checkoutcom_integration_type == 'pci' %}#}
+                    {#<option value="pci" selected="selected">{{ text_integration_pci }}</option>#}
+                  {#{% else %}#}
+                    {#<option value="pci">{{ text_integration_pci }}</option>#}
+                  {#{% endif %}#}
+                  {#{% if payment_checkoutcom_integration_type == 'hosted' %}#}
+                    {#<option value="hosted" selected="selected">{{ text_integration_hosted }}</option>#}
+                  {#{% else %}#}
+                    {#<option value="hosted">{{ text_integration_hosted }}</option>#}
+                  {#{% endif %}#}
+                  {% if payment_checkoutcom_integration_type == 'frames' %}
+                    <option value="frames" selected="selected">{{ text_integration_frames }}</option>
+                  {% else %}
+                    <option value="frames">{{ text_integration_frames }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="payment-action">{{ entry_payment_action }}</label>
+              <div class="col-sm-10">
+                <select name="payment_checkoutcom_payment_action" id="integration-type" class="form-control">
+                  {% if payment_checkoutcom_payment_action == 'no' %}
+                    <option value="no" selected="selected">{{ text_no }}</option>
+                  {% else %}
+                    <option value="no">{{ text_no }}</option>
+                  {% endif %}
+                  {% if payment_checkoutcom_payment_action == 'yes' %}
+                    <option value="yes" selected="selected">{{ text_yes }}</option>
+                  {% else %}
+                    <option value="yes">{{ text_yes }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+            {#<div class="form-group">#}
+              {#<label class="col-sm-2 control-label" for="auto-cap-time"><span data-toggle="tooltip" title="{{ entry_autocapture_delay_tip }}">{{ entry_autocapture_delay }}</span></label>#}
+              {#<div class="col-sm-10">#}
+                {#<input type="text" name="payment_checkoutcom_autocapture_delay" value="{{ payment_checkoutcom_autocapture_delay }}" placeholder="{{ entry_autocapture_delay }}" id="auto-cap-time" class="form-control"/>#}
+              {#</div>#}
+            {#</div>#}
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="payment-action">{{ entry_3D_secure }}</label>
+              <div class="col-sm-10">
+                <select name="payment_checkoutcom_3D_secure" id="3D-secure" class="form-control">
+                  {% if payment_checkoutcom_3D_secure == 'no' %}
+                    <option value="no" selected="selected">{{ text_no }}</option>
+                  {% else %}
+                    <option value="no">{{ text_no }}</option>
+                  {% endif %}
+                  {% if payment_checkoutcom_3D_secure == 'yes' %}
+                    <option value="yes" selected="selected">{{ text_yes }}</option>
+                  {% else %}
+                    <option value="yes">{{ text_yes }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="attempt-non3D">{{ entry_attempt_non3D }}</label>
+              <div class="col-sm-10">
+                  <select name="payment_checkoutcom_attempt_non3D" id="attempt-non3D" class="form-control">
+                      {% if payment_checkoutcom_attempt_non3D == 'no' %}
+                          <option value="no" selected="selected">{{ text_no }}</option>
+                      {% else %}
+                          <option value="no">{{ text_no }}</option>
+                      {% endif %}
+                      {% if payment_checkoutcom_attempt_non3D == 'yes' %}
+                          <option value="yes" selected="selected">{{ text_yes }}</option>
+                      {% else %}
+                          <option value="yes">{{ text_yes }}</option>
+                      {% endif %}
+                  </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="skip-risk-check">{{ entry_skip_risk_check }}</label>
+              <div class="col-sm-10">
+                  <select name="payment_checkoutcom_skip_risk_check" id="skip-risk-check" class="form-control">
+                      {% if payment_checkoutcom_skip_risk_check == 'no' %}
+                          <option value="no" selected="selected">{{ text_no }}</option>
+                      {% else %}
+                          <option value="no">{{ text_no }}</option>
+                      {% endif %}
+                      {% if payment_checkoutcom_skip_risk_check == 'yes' %}
+                          <option value="yes" selected="selected">{{ text_yes }}</option>
+                      {% else %}
+                          <option value="yes">{{ text_yes }}</option>
+                      {% endif %}
+                  </select>
+              </div>
+            </div>
+
+            {#<div class="form-group">#}
+              {#<label class="col-sm-2 control-label" for="save-card">{{ entry_save_card }}</label>#}
+              {#<div class="col-sm-10">#}
+                {#<select name="payment_checkoutcom_save_card" id="save-card" class="form-control">#}
+                  {#{% if payment_checkoutcom_save_card == 'no' %}#}
+                    {#<option value="no" selected="selected">{{ text_save_card_no }}</option>#}
+                  {#{% else %}#}
+                    {#<option value="no">{{ text_save_card_no }}</option>#}
+                  {#{% endif %}#}
+                  {#{% if payment_checkoutcom_save_card == 'yes' %}#}
+                    {#<option value="yes" selected="selected">{{ text_save_card_yes }}</option>#}
+                  {#{% else %}#}
+                    {#<option value="yes">{{ text_save_card_yes }}</option>#}
+                  {#{% endif %}#}
+                {#</select>#}
+              {#</div>#}
+            {#</div>#}
+
+              <div class="form-group">
+                  <label class="col-sm-2 control-label" for="order-status"><span data-toggle="tooltip" title="{{ entry_captured_order_status }}">{{ entry_successful_order_status }}</span></label>
+                  <div class="col-sm-10">
+                      <select name="payment_checkoutcom_order_status_id" id="order-status" class="form-control">
+                          {% for order_status in order_statuses %}
+                              {% if order_status.order_status_id == payment_checkoutcom_order_status_id %}
+                                  <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                              {% else %}
+                                  <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                              {% endif %}
+                          {% endfor %}
+                      </select>
+                  </div>
+              </div>
+
+          </div>
+
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ text_advance_frames_setting }}</h3>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="frames-theme">{{ entry_frames_theme }}</label>
+            <div class="col-sm-10">
+              <select name="payment_checkoutcom_frames_theme" id="frames-theme" class="form-control">
+                {% if payment_checkoutcom_frames_theme == 'standard' %}
+                  <option value="standard" selected="selected">{{ text_theme_standard }}</option>
+                {% else %}
+                  <option value="standard">{{ text_theme_standard }}</option>
+                {% endif %}
+                {% if payment_checkoutcom_frames_theme == 'simple' %}
+                  <option value="simple" selected="selected">{{ text_theme_simple }}</option>
+                {% else %}
+                  <option value="simple">{{ text_theme_simple }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+{{ footer }}

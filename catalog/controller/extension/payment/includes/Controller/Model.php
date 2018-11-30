@@ -8,34 +8,40 @@ abstract class Controller_Model extends Controller
     {
         parent::__construct($registry);
         $this->language->load('extension/payment/checkoutapipayment');
-        $methodType = $this->config->get('checkoutapipayment_integration_type');
+        $methodType = $this->config->get('payment_checkoutapipayment_integration_type');
 
         switch ($methodType)
         {
-            case 'pci':
-                $this->setMethodInstance(new Controller_Methods_creditcardpci($registry));
-                break;
-
-            case 'hosted':
-                $this->setMethodInstance(new Controller_Methods_creditcardhosted($registry));
-                break;
+//            case 'pci':
+//                $this->setMethodInstance(new Controller_Methods_creditcardpci($registry));
+//                break;
+//
+//            case 'hosted':
+//                $this->setMethodInstance(new Controller_Methods_creditcardhosted($registry));
+//                break;
 
             case 'frames':
                 $this->setMethodInstance(new Controller_Methods_creditcardframes($registry));
                 break;
 
             default:
-                $this->setMethodInstance(new Controller_Methods_creditcard($registry));
+                $this->setMethodInstance(new Controller_Methods_creditcardframes($registry));
                 break;
         }
     }
 
     public function index()
     {
-        $this->getMethodInstance()->getIndex();
         $data = $this->getMethodInstance()->getData();
-
-        return $this->load->view('extension/payment/checkoutapi/checkoutapipayment.tpl', $data);
+        switch ($data['integrationType']) {
+            case 'framesJs':
+                    return $this->load->view('extension/payment/checkoutapi/creditcardframes', $data);
+                break;
+            
+            default:
+                
+                break;
+        }
     }
 
     public function setMethodInstance($methodInstance)

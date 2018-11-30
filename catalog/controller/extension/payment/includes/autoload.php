@@ -19,17 +19,17 @@ class Api_Autoloader {
       set_include_path($includePath);
       $path = '';
 
+     
       if(!empty($classNameArray)) {
 
           $path = __DIR__.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $classNameArray). '.php';
 
-          if(file_exists($path)) {
-
-              require_once $path;
-
-          } else {
-
-            throw new Exception("Unable to locate file $path for $class.");
+          if($classNameArray[0] != 'Twig'){
+              if(file_exists($path)) {
+                  require_once $path;
+              } else {
+                throw new Exception("Unable to locate file $path for $class.");
+              }
           }
 
       } else {
