@@ -1,0 +1,112 @@
+<h4>Pay by Card with Checkout.com</h4>
+<br>
+
+<img id="cko-loading" src="catalog/view/theme/default/image/payment/checkoutapi/cko-preloader.gif" class="center" style="width: 50px;"/>
+<div class="frames-container" id='frames-container' style="width: 40%;"></div>
+
+<script type="text/javascript">
+        window.framesCurrentConfig = {
+        	debug: true,
+            publicKey: '{{ publicKey }}', 
+            containerSelector: '.frames-container',
+            theme: '{{ theme }}',
+            cardTokenised: function(event) {
+                if (document.getElementById('cko-card-token').value.length === 0 || document.getElementById('cko-card-token').value != event.data.cardToken) {
+                    document.getElementById('cko-card-token').value = event.data.cardToken;
+
+                    Frames.unblockFields();
+
+                    if(jQuery('input[name="save-cards"]:checked').length == 1){
+                        document.getElementById('save-card-checkbox').value = 1;
+                    }
+
+                    $.ajax({
+                        url: 'index.php?route=extension/payment/checkoutcom/send',
+                        type: 'post',
+                        data: $('.payment :input'),
+                        dataType: 'json',
+                        beforeSend: function () {
+                            $('#button-confirm').attr('disabled', true);
+                            $('#button-confirm').button('loading');
+                        },
+
+                        complete: function () {
+                            $('#button-confirm').attr('disabled', false);
+                            $('#button-confirm').button('reset');
+
+                        },
+                        success: function (json) {
+                            if (json['error']) {
+                                alert(json['error']);
+                            }
+
+                            if (json['redirect']) {
+                                location = json['redirect'];
+                            }
+                        }
+                    });
+
+                }
+            },
+            frameActivated: function() {
+                jQuery('#cko-loading').hide();
+            },
+            cardSubmitted: function (){
+            	$('#button-confirm').attr('disabled', true);
+            }
+        };
+
+        window.frameIsReady = window.frameIsReady || false;
+
+        if (!window.frameIsReady) {
+            window.CKOConfig = { 
+                namespace: 'Frames',
+                ready: function() {
+                    if (typeof Frames == 'undefined') { 
+                        return false;
+                    }
+                    delete window.CKOConfig;
+
+                    Frames.init(window.framesCurrentConfig);
+
+                    window.frameIsReady = true;
+                }
+            };
+
+            var script = document.createElement('script');
+            script.type = "text/javascript";
+            script.src = 'https://cdn.checkout.com/js/frames.js';
+            script.async = true;
+            document.getElementById('frames-container').appendChild(script);
+        } else {
+            Frames.init(window.framesCurrentConfig);
+        }
+
+</script>
+
+<div class="payment">
+	<form id="checkoutcom-form" name="checkoutcom-form" action="{{ action }}" method="POST">
+	    <input type="hidden" name="cko-card-token" id="cko-card-token" value="">
+		<input type="hidden" id="save-card-checkbox" name="save-card-checkbox" value=""/>
+		<input type="hidden" id="cko-payment" name="cko-payment" value="">
+		<input type="hidden" id="entity_id" name="entity_id" value="" />
+	</form>
+</div>
+
+<div class="buttons">
+    <div class="pull-right">
+        <input type="button" value="{{ button_confirm }}" id="button-confirm" class="btn btn-primary" data-loading-text="Loading..." />
+    </div>
+</div>
+
+<script type="text/javascript">
+	jQuery('#button-confirm').click(function(event){
+		if(jQuery("input:radio[name='payment_method']:checked").val() == 'checkoutcom'){
+            if (Frames.isCardValid()){
+                Frames.submitCard();
+            } else {
+                alert('Please enter your card details before confirming your order.');
+            }
+		}
+	});
+</script>
