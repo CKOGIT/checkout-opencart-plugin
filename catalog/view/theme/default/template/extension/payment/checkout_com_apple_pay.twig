@@ -1,0 +1,89 @@
+{% if testmode %}
+<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ text_testmode }}</div>
+{% endif %}
+<div id="payment-form" class="form-group text-center">
+</div>
+<script type="text/javascript">
+if (window.ApplePaySession) {
+    var promise = ApplePaySession.canMakePaymentsWithActiveCard('{{ merchant_id }}');
+
+    promise.then(function (canMakePayments) {
+        if (canMakePayments) {
+            showApplePayButton();
+        } else {
+            displayApplePayUnavailable('{{ error_apple_pay_unavailable }}');
+        }
+    });
+} else {
+    displayApplePayUnavailable('{{ error_apple_pay_unsupported }}');
+}
+
+function displayApplePayUnavailable(message) {
+    var element = '<div class="well well-lg">' + message + '</div>';
+    $('#payment-form').append(element);
+}
+
+function showApplePayButton() {
+    var element = '';
+    element += '<div class="applePayButtonContainer">';
+    element += '  <a lang="us" class="applePayButton" style="{{ button_style }}" onclick="startApplePaySession()" title="Start Apple Pay" role="link" tabindex="0"></a>';
+    element += '</div>';
+    $('#payment-form').append(element);
+}
+
+var checkoutFields = {{ checkout_fields }};
+
+function startApplePaySession() {
+    var applePaySession = new ApplePaySession(3, checkoutFields);
+    handleApplePayEvents(applePaySession);
+    applePaySession.begin();
+}
+
+function handleApplePayEvents(session) {
+    session.onvalidatemerchant = function (event) {
+        performAppleUrlValidation(event.validationURL, function (merchantSession) {
+            session.completeMerchantValidation(merchantSession);
+        });
+    };
+
+    session.onpaymentauthorized = function (event) {
+        var status = ApplePaySession.STATUS_FAILURE;
+
+        $.ajax({
+            url: 'index.php?route=extension/payment/checkout_com/makePayment',
+            type: 'post',
+            data: {
+                apple_pay_token: event.payment.token.paymentData
+            },
+            success: function(json) {
+                if (json['redirect']) {
+                    status = ApplePaySession.STATUS_SUCCESS;
+                } else if (json['redirect']) {
+                    status = ApplePaySession.STATUS_FAILUTRE;
+                }
+
+                session.completePayment(status);
+
+                if (json['redirect']) {
+                    window.location.href = json['redirect'];
+                }
+            }
+        });
+    };
+}
+
+function performAppleUrlValidation(validationUrl, callback) {
+    $.ajax({
+        url: 'index.php?route=extension/payment/checkout_com_apple_pay/paymentSession',
+        type: 'post',
+        data: {
+            url: validationUrl,
+            domain: window.location.host
+        },
+        success: function (outcome) {
+            var data = JSON.parse(outcome);
+            callback(data);
+        }
+    });
+}
+</script>

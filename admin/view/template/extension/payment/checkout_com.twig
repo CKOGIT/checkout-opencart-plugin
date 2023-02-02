@@ -1,0 +1,782 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-checkout-com" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if error_order_statuses %}
+    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i> {{ error_order_statuses }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if not payment_checkout_com_secret_key %}
+    <div class="form-horizontal">
+      <div class="alert alert-info">
+        <div class="form-group" style="padding:0;margin:0;">
+          <label class="col-sm-4 control-label" style="text-align:left;" for="input-request-demo"><span data-toggle="tooltip" title="{{ help_demo }}">{{ entry_demo }}</span></label>
+          <div class="col-sm-8">
+            <div class="input-group">
+              <input type="text" name="checkout_demo_email" class="form-control" placeholder="{{ entry_email }}" />
+              <span class="input-group-btn">
+                <button type="button" id="button-request-demo" class="btn btn-primary" onclick="requestDemo();">{{ button_request_demo }}</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-checkout-com" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+            <li><a href="#tab-card-settings" data-toggle="tab">{{ tab_card_settings }}</a></li>
+            <li><a href="#tab-apple-pay" data-toggle="tab">{{ tab_apple_pay }}</a></li>
+            <li><a href="#tab-google-pay" data-toggle="tab">{{ tab_google_pay }}</a></li>
+            <li><a href="#tab-apm" data-toggle="tab">{{ tab_apm }}</a></li>
+            <li><a href="#tab-status" data-toggle="tab">{{ tab_order_status }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-live-demo"><span data-toggle="tooltip" title="{{ help_test }}">{{ entry_test }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_test" id="input-live-demo" class="form-control">
+                    {% if payment_checkout_com_test %}
+                    <option value="1" selected="selected">{{ text_yes }}</option>
+                    <option value="0">{{ text_no }}</option>
+                    {% else %}
+                    <option value="1">{{ text_yes }}</option>
+                    <option value="0" selected="selected">{{ text_no }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="entry-secret-key">{{ entry_secret_key }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_secret_key" value="{{ payment_checkout_com_secret_key }}" placeholder="{{ entry_secret_key }}" id="entry-secret-key" class="form-control" />
+                  {% if error_secret_key %}
+                  <div class="text-danger">{{ error_secret_key }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="entry-public-key">{{ entry_public_key }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_public_key" value="{{ payment_checkout_com_public_key }}" placeholder="{{ entry_public_key }}" id="entry-public-key" class="form-control"/>
+                  {% if error_public_key %}
+                  <div class="text-danger">{{ error_public_key }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-payment-title"><span data-toggle="tooltip" title="{{ help_payment_title }}">{{ entry_payment_title }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_payment_title" value="{{ payment_checkout_com_payment_title }}" placeholder="{{ entry_payment_title }}" id="input-payment-title" class="form-control" />
+                  {% if error_payment_title %}
+                  <div class="text-danger">{{ error_payment_title }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-payment-title"><span data-toggle="tooltip" title="{{ help_payment_title }}">{{ entry_payment_title }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_payment_title" value="{{ payment_checkout_com_payment_title }}" placeholder="{{ entry_payment_title }}" id="input-payment-title" class="form-control" />
+                  {% if error_payment_title %}
+                  <div class="text-danger">{{ error_payment_title }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-billing-descriptor-status"><span data-toggle="tooltip" title="{{ help_billing_descriptor }}">{{ entry_billing_descriptor_status }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_billing_descriptor_status" id="input-billing-descriptor-status" class="form-control">
+                    {% if payment_checkout_com_billing_descriptor_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group required"{{ payment_checkout_com_billing_descriptor_status ? '' : ' style="display:none;"' }}>
+                <label class="col-sm-2 control-label" for="input-billing-descriptor-name"><span data-toggle="tooltip" title="{{ help_billing_descriptor_name }}">{{ entry_billing_descriptor_name }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_billing_descriptor_name" value="{{ payment_checkout_com_billing_descriptor_name }}" placeholder="{{ entry_billing_descriptor_name }}" id="input-billing-descriptor-name" class="form-control" />
+                  {% if error_billing_descriptor_name %}
+                  <div class="text-danger">{{ error_billing_descriptor_name }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group required"{{ payment_checkout_com_billing_descriptor_status ? '' : ' style=" display:none;"' }}>
+                <label class="col-sm-2 control-label" for="input-billing-descriptor-city"><span data-toggle="tooltip" title="{{ help_billing_descriptor_city }}">{{ entry_billing_descriptor_city }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_billing_descriptor_city" value="{{ payment_checkout_com_billing_descriptor_city }}" placeholder="{{ entry_billing_descriptor_city }}" id="input-billing-descriptor-city" class="form-control" />
+                  {% if error_billing_descriptor_city %}
+                  <div class="text-danger">{{ error_billing_descriptor_city }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_geo_zone_id" id="input-geo-zone" class="form-control">
+                    <option value="0">{{ text_all_zones }}</option>
+                    {% for geo_zone in geo_zones %}
+                    {% if geo_zone.geo_zone_id == payment_checkout_com_geo_zone_id %}
+                    <option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
+                    {% else %}
+                    <option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_status" id="input-status" class="form-control">
+                    {% if payment_checkout_com_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_sort_order" value="{{ payment_checkout_com_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control"/>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-card-settings">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-payment-action"><span data-toggle="tooltip" title="{{ help_payment_action }}">{{ entry_payment_action }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_payment_action" id="input-payment-action" class="form-control">
+                    {% if payment_checkout_com_payment_action %}
+                    <option value="1" selected="selected">{{ text_authorise }}</option>
+                    <option value="0">{{ text_authorise_capture }}</option>
+                    {% else %}
+                    <option value="1">{{ text_authorise }}</option>
+                    <option value="0" selected="selected">{{ text_authorise_capture }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-capture-delay"><span data-toggle="tooltip" title="{{ help_capture_delay }}">{{ entry_capture_delay }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_capture_delay" value="{{ payment_checkout_com_capture_delay }}" placeholder="{{ entry_capture_delay }}" id="input-capture-delay" class="form-control"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="entry-3d-secure"><span data-toggle="tooltip" title="{{ help_3d_secure }}">{{ entry_3d_secure }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_3d_secure" id="input-3d-secure" class="form-control">
+                    {% if payment_checkout_com_3d_secure %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group"{{ payment_checkout_com_3d_secure ? '' : ' style="display:none;"' }}>
+                <label class="col-sm-2 control-label" for="entry-attempt-non-3d"><span data-toggle="tooltip" title="{{ help_attempt_non_3d }}">{{ entry_attempt_non_3d }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_attempt_non_3d" id="input-attempt-non-3d" class="form-control">
+                    {% if payment_checkout_com_attempt_non_3d %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-save-cards"><span data-toggle="tooltip" title="{{ help_save_cards }}">{{ entry_save_cards }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_card" id="input-save-cards" class="form-control">
+                    {% if payment_checkout_com_card %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-mada-bin-check"><span data-toggle="tooltip" title="{{ help_mada_bin_check }}">{{ entry_mada_bin_check }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_mada_bin_check_status" id="input-mada-bin-check" class="form-control">
+                    {% if payment_checkout_com_mada_bin_check_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-display-icons-status"><span data-toggle="tooltip" title="{{ help_display_card_icons }}">{{ entry_display_card_icons }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_display_card_icons_status" id="input-display-icons-status" class="form-control">
+                    {% if payment_checkout_com_display_card_icons_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div id="card-icons" class="form-group"{{ payment_checkout_com_display_card_icons_status ? '' : ' style="display:none;"' }}>
+                <label class="col-sm-2 control-label" for="input-card-icons">{{ entry_card_icons }}</label>
+                <div class="col-sm-10">
+                  <div class="well well-sm" style="height:150px; overflow:auto;">
+                    {% for key,value in card_icons %}
+                    {% if key in payment_checkout_com_card_icons %}
+                    <div class="checkbox"><label><input type="checkbox" name="payment_checkout_com_card_icons[]" value="{{ key }}" checked="checked" /> {{ value }}</label></div>
+                    {% else %}
+                    <div class="checkbox"><label><input type="checkbox" name="payment_checkout_com_card_icons[]" value="{{ key }}" /> {{ value }}</label></div>
+                    {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              <div class="form-group"{{ payment_checkout_com_card ? '' : ' style="display:none;"' }}>
+                <label class="col-sm-2 control-label" for="input-require-cvv"><span data-toggle="tooltip" title="{{ help_require_cvv }}">{{ entry_require_cvv }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_require_cvv" id="input-require-cvv" class="form-control">
+                    {% if payment_checkout_com_require_cvv %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-apple-pay">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status-apple-pay">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_apple_pay_status" id="input-status-apple-pay" class="form-control">
+                    {% if payment_checkout_com_apple_pay_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-payment-title"><span data-toggle="tooltip" title="{{ help_payment_title }}">{{ entry_payment_title }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_apple_pay_payment_title" value="{{ payment_checkout_com_apple_pay_payment_title }}" placeholder="{{ entry_payment_title }}" id="input-apple-pay-payment-title" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-merchant-id">{{ entry_merchant_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_apple_pay_merchant_id" value="{{ payment_checkout_com_apple_pay_merchant_id }}" placeholder="{{ entry_merchant_id }}" id="input-apple-pay-merchant-id" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-certificate"><span data-toggle="tooltip" title="{{ help_certificate }}">{{ entry_certificate }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_apple_pay_certificate" value="{{ payment_checkout_com_apple_pay_certificate }}" placeholder="{{ entry_certificate }}" id="input-apple-pay-certificate" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-certificate-key"><span data-toggle="tooltip" title="{{ help_certificate_key }}">{{ entry_certificate_key }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_apple_pay_certificate_key" value="{{ payment_checkout_com_apple_pay_certificate_key }}" placeholder="{{ entry_certificate_key }}" id="input-apple-pay-certificate-key" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-button-theme">{{ entry_button_theme }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_apple_pay_button_theme" id="input-apple-pay-button-theme" class="form-control">
+                    <option value="black"{{ payment_checkout_com_apple_pay_button_theme == 'black' ? ' selected="selected"' : '' }}>{{ text_black }}</option>
+                    <option value="white"{{ payment_checkout_com_apple_pay_button_theme == 'white' ? ' selected="selected"' : '' }}>{{ text_white }}</option>
+                    <option value="white_outline"{{ payment_checkout_com_apple_pay_button_theme == 'white_outline' ? ' selected="selected"' : '' }}>{{ text_white_outline }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-button-type">{{ entry_button_type }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_apple_pay_button_type" id="input-apple-pay-button-type" class="form-control">
+                    <option value="buy"{{ payment_checkout_com_apple_pay_button_type == 'buy' ? ' selected="selected"' : '' }}>{{ text_buy }}</option>
+                    <option value="plain"{{ payment_checkout_com_apple_pay_button_type == 'plain' ? ' selected="selected"' : '' }}>{{ text_plain }}</option>
+                    <option value="checkout"{{ payment_checkout_com_apple_pay_button_type == 'checkout' ? ' selected="selected"' : '' }}>{{ text_checkout }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-mada"><span data-toggle="tooltip" title="{{ help_enable_mada }}">{{ entry_enable_mada }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_apple_pay_mada_status" id="input-apple-pay-mada" class="form-control">
+                    {% if payment_checkout_com_apple_pay_mada_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apple-pay-sort-order">{{ entry_sort_order }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_apple_pay_sort_order" value="{{ payment_checkout_com_apple_pay_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-apple-pay-sort-order" class="form-control" />
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-google-pay">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status-google-pay">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_google_pay_status" id="input-status-google-pay" class="form-control">
+                    {% if payment_checkout_com_google_pay_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-google-pay-payment-title"><span data-toggle="tooltip" title="{{ help_payment_title }}">{{ entry_payment_title }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_google_pay_payment_title" value="{{ payment_checkout_com_google_pay_payment_title }}" placeholder="{{ entry_payment_title }}" id="input-google-pay-payment-title" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-google-pay-merchant-id">{{ entry_merchant_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_google_pay_merchant_id" value="{{ payment_checkout_com_google_pay_merchant_id }}" placeholder="{{ entry_merchant_id }}" id="input-google-pay-merchant-id" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-google-pay-button-colour">{{ entry_button_colour }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_google_pay_button_colour" id="input-google-pay-button-colour" class="form-control">
+                    <option value="default"{{ payment_checkout_com_google_pay_button_colour == 'default' ? ' selected="selected"' : '' }}>{{ text_default }}</option>
+                    <option value="black"{{ payment_checkout_com_google_pay_button_colour == 'black' ? ' selected="selected"' : '' }}>{{ text_black }}</option>
+                    <option value="white"{{ payment_checkout_com_google_pay_button_colour == 'white' ? ' selected="selected"' : '' }}>{{ text_white }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-google-pay-button-type">{{ entry_button_type }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_google_pay_button_type" id="input-google-pay-button-type" class="form-control">
+                    <option value="buy"{{ payment_checkout_com_google_pay_button_type == 'buy' ? ' selected="selected"' : '' }}>{{ text_with_text }}</option>
+                    <option value="plain"{{ payment_checkout_com_google_pay_button_type == 'plain' ? ' selected="selected"' : '' }}>{{ text_without_text }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-google-pay-sort-order">{{ entry_sort_order }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_google_pay_sort_order" value="{{ payment_checkout_com_google_pay_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-google-pay-sort-order" class="form-control" />
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-apm">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status-apm">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_apm_status" id="input-status-apm" class="form-control">
+                    {% if payment_checkout_com_apm_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apm-payment-title"><span data-toggle="tooltip" title="{{ help_payment_title }}">{{ entry_payment_title }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_apm_payment_title" value="{{ payment_checkout_com_apm_payment_title }}" placeholder="{{ entry_payment_title }}" id="input-apm-payment-title" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">{{ entry_payment_methods }}</label>
+                <div class="col-sm-10">
+                  {% for payment_method in apm_payment_methods %}
+                  <div class="checkbox">
+                    <label><input type="checkbox" name="payment_checkout_com_apm_payment_method[]" value="{{ payment_method }}"{{ payment_method in payment_checkout_com_apm_payment_method ? ' checked="checked"' : '' }} /> {{ _context['text_' ~ payment_method] }}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-apm-sort-order">{{ entry_sort_order }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_checkout_com_apm_sort_order" value="{{ payment_checkout_com_apm_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-apm-sort-order" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane" id="tab-status">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-card-verification-failed-status">{{ entry_card_verification_declined }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_card_verification_declined_status_id" id="input-card-verification-failed-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_card_verification_declined_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-card-verified-status">{{ entry_card_verified }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_card_verified_status_id" id="input-card-verified-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_card_verified_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-approved-status">{{ entry_payment_approved }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_approved_status_id" id="input-approved-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_approved_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-risk-matched-status">{{ entry_payment_risk_matched }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_risk_matched_status_id" id="input-risk-matched-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_risk_matched_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-pending-status">{{ entry_payment_pending }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_pending_status_id" id="input-pending-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_pending_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-declined-status">{{ entry_payment_declined }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_declined_status_id" id="input-declined-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_declined_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-expired-status">{{ entry_payment_expired }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_expired_status_id" id="input-expired-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_expired_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-canceled-status">{{ entry_payment_canceled }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_canceled_status_id" id="input-canceled-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_canceled_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-voided-status">{{ entry_payment_voided }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_voided_status_id" id="input-voided-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_voided_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-void-declined-status">{{ entry_payment_void_declined }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_void_declined_status_id" id="input-void-declined-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_void_declined_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-captured-status">{{ entry_payment_captured }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_captured_status_id" id="input-captured-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_captured_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-capture-declined-status">{{ entry_payment_capture_declined }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_capture_declined_status_id" id="input-capture-declined-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_capture_declined_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-capture-pending-status">{{ entry_payment_capture_pending }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_capture_pending_status_id" id="input-capture-pending-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_capture_pending_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-refunded-status">{{ entry_payment_refunded }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_refunded_status_id" id="input-refunded-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_refunded_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-refund-declined-status">{{ entry_payment_refund_declined }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_refund_declined_status_id" id="input-refund-declined-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_refund_declined_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-refund-pending-status">{{ entry_payment_refund_pending }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_refund_pending_status_id" id="input-refund-pending-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_refund_pending_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-chargeback-status">{{ entry_payment_chargeback }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_checkout_com_chargeback_status_id" id="input-chargeback-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_checkout_com_chargeback_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+var save_card_select = $('select[name=\'payment_checkout_com_card\']');
+var require_cvv_select = $('select[name=\'payment_checkout_com_require_cvv\']');
+
+save_card_select.on('change', function () {
+    if (save_card_select.val() == 1) {
+        require_cvv_select.parent().parent().show();
+    } else {
+        require_cvv_select.parent().parent().hide();
+    }
+});
+
+var threed_secure_select = $('select[name=\'payment_checkout_com_3d_secure\']');
+var attempt_non_3d_select = $('select[name=\'payment_checkout_com_attempt_non_3d\']');
+
+threed_secure_select.on('change', function () {
+    if (threed_secure_select.val() == 1) {
+        attempt_non_3d_select.parent().parent().show();
+    } else {
+        attempt_non_3d_select.parent().parent().hide();
+    }
+});
+
+var billing_descriptor_status = $('select[name=\'payment_checkout_com_billing_descriptor_status\']');
+var billing_descriptor_name = $('input[name=\'payment_checkout_com_billing_descriptor_name\']');
+var billing_descriptor_city = $('input[name=\'payment_checkout_com_billing_descriptor_city\']');
+
+billing_descriptor_status.on('change', function() {
+    if (billing_descriptor_status.val() == 1) {
+        billing_descriptor_name.parent().parent().show();
+        billing_descriptor_city.parent().parent().show();
+    } else {
+        billing_descriptor_name.parent().parent().hide();
+        billing_descriptor_city.parent().parent().hide();
+    }
+});
+
+var display_card_icons_status = $('select[name=\'payment_checkout_com_display_card_icons_status\']');
+
+display_card_icons_status.on('change', function() {
+    if (display_card_icons_status.val() == 1) {
+        $('#card-icons').show();
+    } else {
+        $('#card-icons').hide();
+    }
+});
+</script>
+<script type="text/javascript">
+function requestDemo() {
+    $.ajax({
+        url: 'index.php?route=extension/payment/checkout_com/demo&user_token={{ user_token }}&email=' + encodeURIComponent($('input[name=\'checkout_demo_email\']').val()),
+        type: 'get',
+        dataType: 'json',
+        cache: false,
+        beforeSend: function() {
+            $('#button-request-demo').prop('disabled', true);
+        },
+        success: function(json) {
+            $('#button-request-demo').prop('disabled', false);
+            
+            alert(json['message']);
+        }
+    });
+}
+</script>
+{{ footer }}

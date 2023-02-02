@@ -1,0 +1,111 @@
+{% if testmode %}
+<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ text_testmode }}</div>
+{% endif %}
+<div id="payment-form" class="form-group text-center">
+  <input type="hidden" name="cko-google-protocolVersion" value="" />
+  <input type="hidden" name="cko-google-signature" value="" />
+  <input type="hidden" name="cko-google-signedMessage" value="" />
+</div>
+<script type="text/javascript">
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = 'https://pay.google.com/gp/p/js/pay.js';
+document.body.appendChild(script);
+
+const baseRequest = {
+    apiVersion: 2,
+    apiVersionMinor: 0
+};
+
+const allowedCardNetworks = ["AMEX", "DISCOVER", "JCB", "MASTERCARD", "VISA"];
+const allowedPaymentMethods = ['CARD', 'TOKENIZED_CARD'];
+
+var googlePaymentDataConfiguration = {
+    merchantId: '{{ merchant_id }}',
+    paymentMethodTokenizationParameters: {
+        tokenizationType: 'PAYMENT_GATEWAY',
+        parameters: {
+            'gateway': 'checkoutltd',
+            'gatewayMerchantId': '{{ public_key }}'
+        }
+    },
+    allowedPaymentMethods: allowedPaymentMethods,
+    cardRequirements: {
+        allowedCardNetworks: allowedCardNetworks
+    }
+};
+
+script.addEventListener('load', function() {
+    {% if testmode %}
+    const paymentsClient = new google.payments.api.PaymentsClient({environment: 'TEST'});
+    {% else %}
+    const paymentsClient = new google.payments.api.PaymentsClient({environment: 'PRODUCTION'});
+    {% endif %}
+
+    const isReadyToPayRequest = Object.assign({}, baseRequest);
+    isReadyToPayRequest.allowedPaymentMethods = [googlePaymentDataConfiguration];
+
+    paymentsClient.isReadyToPay(isReadyToPayRequest).then(function(response) {
+        if (response.result) {
+            const button = paymentsClient.createButton({
+                onClick: () => requestPayment(),
+                buttonColor: '{{ button_colour }}',
+                buttonType: '{{ button_type }}'
+            });
+            document.getElementById('payment-form').appendChild(button);
+        } else {
+            alert(response.result);
+        }
+    })
+    .catch(function(err) {
+        alert(err);
+    });
+
+    function requestPayment() {
+        const paymentDataRequest = Object.assign({}, googlePaymentDataConfiguration);
+
+        paymentDataRequest.transactionInfo = {
+            totalPriceStatus: 'FINAL',
+            totalPrice: '{{ amount }}',
+            currencyCode: '{{ currency_code }}',
+            countryCode: '{{ country_code }}'
+        }
+
+        paymentsClient.loadPaymentData(paymentDataRequest).then(function(paymentData) {
+            var data = JSON.parse(paymentData.paymentMethodToken.token);
+            
+            $.ajax({
+                url: 'index.php?route=extension/payment/checkout_com/makePayment',
+                type: 'post',
+                data: {
+                  google_pay_token: {
+                        protocolVersion: data.protocolVersion,
+                        signature: data.signature,
+                        signedMessage: data.signedMessage
+                  }
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#pay-button').prop('disabled', true);
+                    $('#pay-button').button('loading');
+                },
+                complete: function() {
+                    $('#pay-button').prop('disabled', false);
+                    $('#pay-button').button('reset');
+                },
+                success: function(json) {
+                    if (json['redirect']) {
+                        window.location.href = json['redirect'];
+                    } else if (json['error']) {
+                        alert(json['error']);
+                    } else {
+                        alert('{{ error_unknown }}');
+                    }
+                }
+            });
+        }).catch(function(err){
+            alert(err);
+        });
+    }
+});
+</script>

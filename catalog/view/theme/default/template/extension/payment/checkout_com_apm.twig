@@ -1,0 +1,76 @@
+{% if testmode %}
+<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ text_testmode }}</div>
+{% endif %}
+<div class="form-horizontal">
+  <div class="form-group required">
+    <label class="col-sm-4 control-label" for="input-checkout-com-payment-method">{{ entry_merchants }}</label>
+    <div class="col-sm-8">
+      <select name="checkout_com_apm" id="input-checkout-com-payment-method" class="form-control">
+        {% for payment_method in payment_methods %}
+        <option value="{{ payment_method }}">{{ _context['text_' ~ payment_method] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div id="bancontact-holder-name" class="form-group required" style="display:none;">
+    <label class="col-sm-4 control-label" for="input-checkout-com-holder-name">{{ entry_holder_name }}</label>
+    <div class="col-sm-8">
+      <input type="text" name="checkout_com_holder_name" id="input-checkout-com-holder-name" class="form-control" />
+    </div>
+  </div>
+  <div id="bancontact-country" class="form-group required" style="display:none;">
+    <label class="col-sm-4 control-label" for="input-checkout-com-country">{{ entry_country_issued }}</label>
+    <div class="col-sm-8">
+      <select name="checkout_com_country_issued" id="input-checkout-com-country" class="form-control">
+        {% for country in countries %}
+        <option value="{{ country.iso_code_2 }}">{{ country.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+<div class="buttons">
+  <div class="pull-right">
+    <button type="button" id="pay-button" onclick="requestPayment();" class="btn btn-primary">{{ button_confirm }}</button>
+  </div>
+</div>
+<script type="text/javascript">
+$(document).on('change', 'select[name=\'checkout_com_apm\']', function() {
+    if ($('select[name=\'checkout_com_apm\'] option:selected').val() == 'bancontact') {
+        $('#bancontact-holder-name').show();
+        $('#bancontact-country').show();
+    } else {
+        $('#bancontact-holder-name').hide();
+        $('#bancontact-country').hide();
+    }
+});
+
+function requestPayment() {
+    $.ajax({
+        url: 'index.php?route=extension/payment/checkout_com/requestPayment',
+        type: 'post',
+        data: $('#input-checkout-com-payment-method, #input-checkout-com-holder-name, #input-checkout-com-country'),
+        dataType: 'json',
+        beforeSend: function() {
+            $('#pay-button').prop('disabled', true);
+            $('#pay-button').button('loading');
+        },
+        complete: function() {
+            $('#pay-button').prop('disabled', false);
+            $('#pay-button').button('reset');
+        },
+        success: function(json) {
+            if (json['redirect']) {
+                window.location.href = json['redirect'];
+            } else if (json['error']) {
+                alert(json['error']);
+            } else {
+                alert('{{ error_unknown }}');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+}
+</script>

@@ -1,0 +1,195 @@
+<style>*,*::after,*::before{box-sizing:border-box}iframe{width:100%}.one-liner{width:31.5rem;margin:0 auto;display:flex;flex-direction:column}.card-frame{border:solid 1px #13395E;border-radius:3px;width:100%;margin-bottom:8px;height:40px;box-shadow:0 1px 3px 0 rgba(19,57,94,0.2)}.card-frame.frame--rendered{opacity:1}.card-frame.frame--rendered.frame--focus{border:solid 1px #13395E;box-shadow:0 2px 5px 0 rgba(19,57,94,0.15)}.card-frame.frame--rendered.frame--invalid{border:solid 1px #D96830;box-shadow:0 2px 5px 0 rgba(217,104,48,0.15)}.success-payment-message{color:#13395E;line-height:1.4}.token{color:#b35e14;font-size:0.9rem;font-family:monospace}@media screen and (min-width: 31rem){.card-frame{width:318px;margin-bottom:0}}</style>
+{% if testmode %}
+<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ text_testmode }}</div>
+{% endif %}
+<div id="payment-form" class="form-group">
+  <div class="one-liner">
+    {% if is_logged and save_cards %}
+    <div class="panel-group" id="checkout-com-accordion">
+      {% for saved_card in saved_cards %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <label>
+            <input type="radio" name="saved_card" value="{{ saved_card.card_id }}"> {{ saved_card.scheme ~ ' ending with ' ~ saved_card.digits ~ ' (expires in' ~ saved_card.expiry ~ ')' }}
+          </label>
+        </div>
+        {% if require_cvv %}
+        <div class="panel-collapse collapse" id="collapse-checkout-com-{{ saved_card.card_id }}">
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-cvv-{{ saved_card.card_id }}">{{ entry_cvv }}</label>
+              <div class="col-sm-10">
+                <input type="text" name="cvv" placeholder="{{ entry_cvv }}" id="input-cvv-{{ saved_card.card_id }}" class="form-control" />
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <label><input type="radio" name="saved_card" value="new"> {{ text_new_card }}</label>
+        </div>
+      </div>
+      <div class="collapse" id="collapse-checkout-com-new" aria-expanded="false">
+        <br />
+        <div class="card-frame"></div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" name="save_card" value="1">
+            {{ entry_save_card }}
+          </label>
+        </div>
+      </div>
+    {% else %}
+    <div class="card-frame"></div>
+    {% endif %}
+  </div>
+</div>
+<div class="buttons text-right">
+  <button type="button" id="pay-button" class="btn btn-primary" disabled>{{ button_confirm }}</button>
+</div>
+<script type="text/javascript">
+    {% if is_mada_bin_check_enabled %}
+    const mada_bin = [
+        '588845', '440647', '440795', '446404', '457865', '968208',
+        '588846', '493428', '539931', '558848', '557606', '968210',
+        '636120', '417633', '468540', '468541', '468542', '468543',
+        '968201', '446393', '588847', '400861', '409201', '458456',
+        '484783', '968205', '462220', '455708', '588848', '455036',
+        '968203', '486094', '486095', '486096', '504300', '440533',
+        '489317', '489318', '489319', '445564', '968211', '401757',
+        '410685', '432328', '428671', '428672', '428673', '968206',
+        '446672', '543357', '434107', '431361', '604906', '521076',
+        '588850', '968202', '535825', '529415', '543085', '524130',
+        '554180', '549760', '588849', '968209', '524514', '529741',
+        '537767', '535989', '536023', '513213', '585265', '588983',
+        '588982', '589005', '508160', '531095', '530906', '532013',
+        '588851', '605141', '968204', '422817', '422818', '422819',
+        '428331', '483010', '483011', '483012', '589206', '968207',
+        '419593', '439954', '407197', '407395', '520058', '530060',
+        '531196', '412565', '506968', '457997', '406996', '449197'
+    ];
+    {% endif %}
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://cdn.checkout.com/js/framesv2.min.js';
+    document.body.appendChild(script);
+
+    var payButton = document.getElementById('pay-button');
+    var form = document.getElementById('payment-form');
+
+    script.addEventListener('load', function() {
+        Frames.init('{{ public_key }}');
+
+        Frames.addEventHandler(
+            Frames.Events.CARD_VALIDATION_CHANGED,
+                function (event) {
+                    payButton.disabled = !Frames.isCardValid();
+                }
+        );
+
+        payButton.addEventListener('click', function() {
+            {% if is_logged and save_cards %}
+            if ($('input[name=\'saved_card\']:checked').val() == 'new') {
+            {% endif %}
+                $('#pay-button').prop('disabled', true);
+                $('#pay-button').button('loading');
+
+                Frames.submitCard()
+                    .then(function (data) {
+                        Frames.addCardToken(form, data.token);
+
+                        {% if is_mada_bin_check_enabled %}
+                        if (mada_bin.indexOf(data.bin) !== -1) {
+                            var makePaymentUrl = 'index.php?route=extension/payment/checkout_com/makePayment&mada=1';
+                        } else {
+                            var makePaymentUrl = 'index.php?route=extension/payment/checkout_com/makePayment';
+                        }
+                        {% else %}
+                        var makePaymentUrl = 'index.php?route=extension/payment/checkout_com/makePayment';
+                        {% endif %}
+
+                        $.ajax({
+                            url: makePaymentUrl,
+                            type: 'post',
+                            data: $('input[name=\'cko-card-token\'], input[name=\'save_card\']:checked'),
+                            dataType: 'json',
+                            beforeSend: function() {
+                                $('#pay-button').prop('disabled', true);
+                                $('#pay-button').button('loading');
+                            },
+                            complete: function() {
+                                $('#pay-button').prop('disabled', false);
+                                $('#pay-button').button('reset');
+                            },
+                            success: function(json) {
+                                if (json['redirect']) {
+                                    window.location.href = json['redirect'];
+                                } else if (json['error']) {
+                                    alert(json['error']);
+                                } else {
+                                    alert('{{ error_unknown }}');
+                                }
+                            }
+                        });
+                    })
+                    .catch(function (error)  {
+                        alert(error);
+
+                        $('#pay-button').prop('disabled', false);
+                        $('#pay-button').button('reset');
+                    });
+            {% if is_logged and save_cards %}
+            } else {
+                $.ajax({
+                    url: 'index.php?route=extension/payment/checkout_com/makePayment',
+                    type: 'post',
+                    data: $('input[name=\'saved_card\']:checked, input[name=\'save_card\']:checked, input[name=\'cvv\']'),
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $('#pay-button').prop('disabled', true);
+                        $('#pay-button').button('loading');
+                    },
+                    complete: function() {
+                        $('#pay-button').prop('disabled', false);
+                        $('#pay-button').button('reset');
+                    },
+                    success: function(json) {
+                        if (json['redirect']) {
+                            window.location.href = json['redirect'];
+                        } else if (json['error']) {
+                            alert(json['error']);
+                        } else {
+                            alert('{{ error_unknown }}');
+                        }
+                    }
+                });
+            }
+            {% endif %}
+        });
+    });
+
+    $(document).on('change', 'input[name=\'saved_card\']', function() {
+        if ($(this).val() == 'new') {
+            {% if require_cvv %}
+            $('#collapse-checkout-confirm .collapse.in').collapse('toggle');
+            {% endif %}
+            $('#collapse-checkout-com-new').stop().slideDown();
+            $('#pay-button').prop('disabled', true);
+        } else {
+            {% if require_cvv %}
+            $('#collapse-checkout-confirm .collapse.in').collapse('toggle');
+            $('#collapse-checkout-com-' + $(this).val()).collapse('toggle');
+            {% endif %}
+
+            if ($('#collapse-checkout-com-new').css('display') !== 'none') {
+                $('#collapse-checkout-com-new').stop().slideUp();
+            }
+
+            $('#pay-button').prop('disabled', false);
+        }
+    });
+</script>
