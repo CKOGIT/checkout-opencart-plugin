@@ -453,6 +453,12 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
         } else {
             $data['payment_checkout_com_apm_sort_order'] = $this->config->get('payment_checkout_com_apm_sort_order');
         }
+
+        if (isset($this->request->post['payment_checkout_com_workflow_id'])) {
+            $data['payment_checkout_com_workflow_id'] = $this->request->post['payment_checkout_com_workflow_id'];
+        } else {
+            $data['payment_checkout_com_workflow_id'] = $this->config->get('payment_checkout_com_workflow_id');
+        }
         
         $data['user_token'] = $this->session->data['user_token'];
 
@@ -493,7 +499,6 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
         if (!empty($this->request->post['payment_checkout_com_secret_key'])) {
             try {
                 $url = HTTPS_CATALOG . 'index.php?route=extension/payment/checkout_com/webhook';
-                
                 if ($this->request->post['payment_checkout_com_test']) {
                     $checkout = new CheckoutApi($this->request->post['payment_checkout_com_secret_key']);
                 } else {
@@ -504,10 +509,10 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
 
                 $has_webhook = false;
                 
-                foreach ($webhooks->list as $webhook) {
-                    if ($webhook->url == $url) {
+                foreach ($webhooks->data as $webhook) {
+                    if ($webhook["id"] == $this->config->get('payment_checkout_com_workflow_id')) {
                         $has_webhook = true;
-                        
+                        $webhook_id = $this->config->get('payment_checkout_com_workflow_id');
                         break;
                     }
                 }
@@ -532,8 +537,10 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                         'payment_chargeback'
                     ];
                     
-                    $checkout->webhooks()->register($webhook, $events);
+                    $response = $checkout->webhooks()->register($webhook, $events);
+                    $webhook_id = $response->id;
                 }
+                $this->request->post['payment_checkout_com_workflow_id'] = $webhook_id;
             } catch (CheckoutHttpException $ex) {
                 $error_code = $ex->getCode();
 
