@@ -94,7 +94,7 @@ class WebhookController extends Controller
     public function retrieve($mode = HttpHandler::MODE_EXECUTE)
     {
         $webhook = new Webhook('');
-        $response = $this->requestAPI("webflows/");
+        $response = $this->requestAPI("workflows/");
 
         return $this->response($response, Webhook::QUALIFIED_NAME, $mode);
     }
