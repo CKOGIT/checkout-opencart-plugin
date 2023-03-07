@@ -508,7 +508,6 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                 $webhooks = $checkout->webhooks()->retrieve();
 
                 $has_webhook = false;
-
                 foreach ($webhooks->data as $webhook) {
                     if ($webhook["id"] == $this->config->get('payment_checkout_com_workflow_id')) {
                         $has_webhook = true;
@@ -524,8 +523,6 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                         "card_verification_declined",
                         "card_verified",
                         "payment_approved",
-                        "payment_chargeback",
-                        "match_failed",
                         "payment_pending",
                         "payment_declined",
                         "payment_expired",
@@ -564,6 +561,7 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                     curl_setopt($ch, CURLOPT_AUTOREFERER, true); 
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+
                     curl_setopt($ch, CURLOPT_VERBOSE, 1);
                     curl_setopt($ch, CURLOPT_URL, $post_url);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -577,9 +575,13 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $body_str);
                     $response = json_decode(curl_exec($ch));
 
-                    $webhook_id = $response->id;
+                    if(curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201) {
+                        $this->error['warning'] = $this->language->get('error_webhook');
+                    } else {
+                        $webhook_id = $response->id;
+                        $this->request->post['payment_checkout_com_workflow_id'] = $webhook_id;
+                    }
                 }
-                $this->request->post['payment_checkout_com_workflow_id'] = $webhook_id;
             } catch (CheckoutHttpException $ex) {
                 $error_code = $ex->getCode();
 
