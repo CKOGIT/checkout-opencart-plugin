@@ -11,7 +11,7 @@ use Checkout\Models\Webhooks\Webhook;
 
 class ControllerExtensionPaymentCheckoutCom extends Controller {
     private $error = array();
-    private $version = '1.2.0';
+    private $version = '1.3.0';
 
     public function index() {
         $data = $this->load->language('extension/payment/checkout_com');
@@ -508,7 +508,7 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                 $webhooks = $checkout->webhooks()->retrieve();
 
                 $has_webhook = false;
-                
+
                 foreach ($webhooks->data as $webhook) {
                     if ($webhook["id"] == $this->config->get('payment_checkout_com_workflow_id')) {
                         $has_webhook = true;
@@ -516,28 +516,67 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                         break;
                     }
                 }
-                
+
                 if (!$has_webhook) {
                     $webhook = new Webhook($url);
                     
                     $events = [
-                        'payment_approved',
-                        'payment_pending',
-                        'payment_declined',
-                        'payment_expired',
-                        'payment_canceled',
-                        'payment_voided',
-                        'payment_void_declined',
-                        'payment_captured',
-                        'payment_capture_declined',
-                        'payment_capture_pending',
-                        'payment_refunded',
-                        'payment_refund_declined',
-                        'payment_refund_pending',
-                        'payment_chargeback'
+                        "card_verification_declined",
+                        "card_verified",
+                        "payment_approved",
+                        "payment_chargeback",
+                        "match_failed",
+                        "payment_pending",
+                        "payment_declined",
+                        "payment_expired",
+                        "payment_canceled",
+                        "payment_voided",
+                        "payment_void_declined",
+                        "payment_captured",
+                        "payment_capture_declined",
+                        "payment_capture_pending",
+                        "payment_refunded",
+                        "payment_refund_declined",
+                        "payment_refund_pending"
                     ];
-                    
-                    $response = $checkout->webhooks()->register($webhook, $events);
+
+                    // Workaround for NAS compatibility
+                    $body["name"] = "Opencart " . $this->config->get('config_name');
+                    $conditions["type"] = "event";
+                    $conditions["events"]["gateway"] = $events;
+                    $body["conditions"] = [$conditions];
+                    $actions["type"] = "webhook";
+                    $actions["url"] = $url;
+                    $actions["headers"]["Authorization"] = $this->config->get('payment_checkout_com_secret_key');
+                    $actions["signature"]["key"] = $this->config->get('payment_checkout_com_secret_key');
+                    $body["actions"] = [$actions];
+
+                    #JSON encode the params
+                    $body_str   = json_encode($body);
+
+                    #Curl init
+                    $post_url = "https://api.checkout.com/workflows";
+                    if ($this->config->get("payment_checkout_com_test")) {
+                        $post_url = "https://api.sandbox.checkout.com/workflows";
+                    }
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_AUTOREFERER, true); 
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+                    curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                    curl_setopt($ch, CURLOPT_URL, $post_url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                            'Authorization: ' . $this->config->get('payment_checkout_com_secret_key'),
+                            'Content-Type: ' . 'application/json'
+                        )
+                    );  
+
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $body_str);
+                    $response = json_decode(curl_exec($ch));
+
                     $webhook_id = $response->id;
                 }
                 $this->request->post['payment_checkout_com_workflow_id'] = $webhook_id;
