@@ -544,8 +544,8 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                     $body["conditions"] = [$conditions];
                     $actions["type"] = "webhook";
                     $actions["url"] = $url;
-                    $actions["headers"]["Authorization"] = $this->config->get('payment_checkout_com_secret_key');
-                    $actions["signature"]["key"] = $this->config->get('payment_checkout_com_secret_key');
+                    $actions["headers"]["Authorization"] = $this->request->post['payment_checkout_com_secret_key'];
+                    $actions["signature"]["key"] = $this->request->post['payment_checkout_com_secret_key'];
                     $body["actions"] = [$actions];
 
                     #JSON encode the params
@@ -566,7 +566,7 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
                     curl_setopt($ch, CURLOPT_URL, $post_url);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                            'Authorization: ' . $this->config->get('payment_checkout_com_secret_key'),
+                            'Authorization: ' . $this->request->post['payment_checkout_com_secret_key'],
                             'Content-Type: ' . 'application/json'
                         )
                     );  
