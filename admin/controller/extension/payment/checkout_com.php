@@ -553,7 +553,7 @@ class ControllerExtensionPaymentCheckoutCom extends Controller {
 
                     #Curl init
                     $post_url = "https://api.checkout.com/workflows";
-                    if ($this->config->get("payment_checkout_com_test")) {
+                    if ($this->request->post["payment_checkout_com_test"]) {
                         $post_url = "https://api.sandbox.checkout.com/workflows";
                     }
 
